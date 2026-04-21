@@ -1,0 +1,506 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TCF In-Charge Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1976D2;
+            --primary-dark: #1565C0;
+            --danger: #E53935;
+            --danger-dark: #C62828;
+            --success: #43A047;
+            --success-dark: #2E7D32;
+            --warning: #FB8C00;
+            --bg-color: #F3F4F6;
+            --card-bg: #FFFFFF;
+            --text-main: #1F2937;
+            --text-light: #6B7280;
+            --border-color: #E5E7EB;
+        }
+
+        * { box-sizing: border-box; }
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: var(--bg-color); 
+            margin: 0; 
+            color: var(--text-main);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .header { 
+            background: linear-gradient(135deg, var(--danger) 0%, var(--danger-dark) 100%);
+            color: white; 
+            padding: 20px 15px; 
+            text-align: center; 
+            font-size: 22px; 
+            font-weight: 800; 
+            position: sticky; 
+            top: 0; 
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(229, 57, 53, 0.2);
+            letter-spacing: 0.5px;
+        }
+
+        /* Group Selection Screen */
+        .group-selector { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            height: calc(100vh - 68px); 
+            padding: 20px;
+        }
+
+        .group-selector h3 {
+            color: var(--text-light);
+            font-weight: 600;
+            margin-bottom: 25px;
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .group-btn { 
+            width: 100%; 
+            max-width: 350px;
+            background: var(--card-bg); 
+            margin: 10px 0; 
+            padding: 22px; 
+            border-radius: 16px; 
+            border: 2px solid transparent; 
+            font-size: 20px; 
+            font-weight: 700; 
+            color: var(--text-main); 
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: all 0.2s ease;
+        }
+
+        .group-btn:active { transform: scale(0.98); }
+        .group-btn:hover { border-color: var(--danger); color: var(--danger); box-shadow: 0 6px 12px rgba(229, 57, 53, 0.1); }
+
+        /* Main Container */
+        .container { 
+            padding: 15px; 
+            max-width: 800px;
+            margin: 0 auto;
+            display: none; 
+        }
+
+        .loading { 
+            text-align: center; 
+            margin-top: 50px; 
+            font-weight: 600; 
+            display: none; 
+            color: var(--danger); 
+            background: #ffebee;
+            padding: 12px;
+            border-radius: 8px;
+            max-width: 300px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Line Cards */
+        .line-card { 
+            background: var(--card-bg); 
+            margin-bottom: 15px; 
+            border-radius: 12px; 
+            padding: 18px; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04); 
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .line-card:active { transform: scale(0.99); background-color: #fafafa; }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .line-name { 
+            font-size: 18px; 
+            font-weight: 700; 
+            color: var(--text-main); 
+        }
+
+        .stats { 
+            font-size: 14px; 
+            font-weight: 600;
+            background: #F3F4F6;
+            padding: 6px 12px;
+            border-radius: 20px;
+            color: var(--text-light); 
+        }
+
+        .operator-list { 
+            display: none; 
+            margin-top: 15px; 
+            border-top: 2px dashed var(--border-color); 
+            padding-top: 15px; 
+        }
+
+        .operator-item { 
+            display: flex; 
+            justify-content: space-between; 
+            padding: 12px 0; 
+            border-bottom: 1px solid #F3F4F6; 
+            align-items: center; 
+        }
+
+        .operator-item:last-child { border-bottom: none; padding-bottom: 0; }
+
+        .op-info {
+            display: flex;
+            align-items: center;
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .status-dot { 
+            height: 12px; 
+            width: 12px; 
+            border-radius: 50%; 
+            display: inline-block; 
+            margin-right: 10px; 
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .present { background-color: var(--success); }
+        .absent { background-color: var(--danger); }
+        
+        /* Action Buttons */
+        .action-group {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .btn-action {
+            border: none; 
+            padding: 8px 12px; 
+            border-radius: 6px; 
+            font-size: 12px; 
+            font-weight: 700; 
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s ease;
+        }
+
+        .btn-transfer { background: #E0F2FE; color: var(--primary-dark); }
+        .btn-transfer:active { background: #BAE6FD; }
+
+        .btn-present { background: #DCFCE7; color: var(--success-dark); }
+        .btn-present:active { background: #BBF7D0; }
+        
+        .btn-absent-ic { background: #FEE2E2; color: var(--danger-dark); }
+        .btn-absent-ic:active { background: #FECACA; }
+
+        .status-badge {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 8px;
+            border-radius: 4px;
+            display: inline-block;
+            max-width: 90px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .badge-red { background: #FEE2E2; color: var(--danger-dark); }
+        .badge-green { background: #DCFCE7; color: var(--success-dark); }
+        .badge-orange { background: #FFEDD5; color: #C2410C; }
+        
+        /* Dropdown Modal Styling */
+        .modal-overlay { 
+            display: none; 
+            position: fixed; 
+            top: 0; left: 0; 
+            width: 100%; height: 100%; 
+            background: rgba(17, 24, 39, 0.7); 
+            backdrop-filter: blur(4px);
+            z-index: 999; 
+        }
+
+        #transfer-modal {
+            display: none; 
+            position: fixed; 
+            top: 50%; left: 50%; 
+            transform: translate(-50%, -50%);
+            background: var(--card-bg); 
+            padding: 25px; 
+            border-radius: 16px; 
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); 
+            z-index: 1000; 
+            width: 85%; 
+            max-width: 340px;
+        }
+
+        #transfer-modal h4 { margin: 0 0 5px 0; font-size: 18px; color: var(--text-main); }
+        #target-op-text { font-size: 13px; color: var(--text-light); margin-bottom: 20px; font-weight: 500;}
+        
+        select { 
+            width: 100%; 
+            padding: 12px; 
+            margin-bottom: 20px; 
+            border-radius: 8px; 
+            border: 2px solid var(--border-color); 
+            font-size: 15px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            color: var(--text-main);
+            outline: none;
+        }
+
+        select:focus { border-color: var(--primary); }
+
+        .modal-btns { display: flex; gap: 10px; }
+        .btn-confirm { background: var(--success); color: white; border: none; padding: 12px; border-radius: 8px; flex: 1; font-weight: 700; font-size: 14px;}
+        .btn-cancel { background: #E5E7EB; color: var(--text-main); border: none; padding: 12px; border-radius: 8px; flex: 1; font-weight: 600; font-size: 14px;}
+    </style>
+</head>
+<body>
+
+<div class="header" id="header-text">TCF Deployment Center</div>
+
+<div class="group-selector" id="group-screen">
+    <h3>Select Your Shift Group</h3>
+    <button class="group-btn" onclick="selectGroup('A')">Group A</button>
+    <button class="group-btn" onclick="selectGroup('B')">Group B</button>
+    <button class="group-btn" onclick="selectGroup('C')">Group C</button>
+</div>
+
+<div class="loading" id="loader">Fetching Data...</div>
+
+<div class="container" id="dashboard-screen"></div>
+
+<div class="modal-overlay" id="overlay"></div>
+<div id="transfer-modal">
+    <h4>Transfer Operator</h4>
+    <div id="target-op-text"></div>
+    <select id="line-dropdown"></select>
+    <div class="modal-btns">
+        <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+        <button class="btn-confirm" onclick="confirmTransfer()">Confirm</button>
+    </div>
+</div>
+
+<script>
+    // 👇👇👇 YAHA APNA NAYA WEB APP URL PASTE KARNA MAT BHULNA 👇👇👇
+    const API_URL = "https://script.google.com/macros/s/AKfycbzg44SKe6YD-xk4NCdL8vJZUfWY94iZMY4GEl9ItMxw8Ywdb8aLCr3Gfy1e4wf2hcAf/exec"; 
+    
+    const lines = ["Trim 1", "Trim 2", "Underbody", "Engine MO1", "Engine MO3", "New Line", "Trim 3", "Final Line", "CSC Line", "D2D Line"];
+    
+    let currentGroup = "";
+    let selectedToken = "";
+    let autoRefreshInterval = null;
+
+    const dropdown = document.getElementById('line-dropdown');
+    lines.forEach(line => {
+        let opt = document.createElement('option');
+        opt.value = line;
+        opt.innerHTML = line;
+        dropdown.appendChild(opt);
+    });
+
+    async function selectGroup(group) {
+        currentGroup = group;
+        document.getElementById('group-screen').style.display = 'none';
+        document.getElementById('loader').style.display = 'block';
+        document.getElementById('header-text').innerText = `TCF Dashboard - Group ${group}`;
+
+        await loadDashboard(); 
+        
+        if(autoRefreshInterval) clearInterval(autoRefreshInterval);
+        autoRefreshInterval = setInterval(loadDashboard, 10000); 
+    }
+
+    async function loadDashboard() {
+        if(!currentGroup) return;
+        try {
+            const response = await fetch(`${API_URL}?group=${currentGroup}`);
+            const data = await response.json();
+            renderDashboard(data);
+        } catch (e) {
+            console.log("Syncing...", e);
+        }
+    }
+
+    function renderDashboard(data) {
+        document.getElementById('loader').style.display = 'none';
+        let container = document.getElementById('dashboard-screen');
+        container.style.display = 'block';
+        
+        let htmlContent = "";
+
+        lines.forEach(lineName => {
+            let activeOpsHtml = "";
+            let baseOpsCount = 0;
+            let presentCount = 0;
+
+            data.operators.forEach(op => {
+                let isBaseLine = (op.line === lineName);
+                if(isBaseLine) baseOpsCount++; 
+
+                let attendanceList = data.attendanceToday.filter(a => a.token === op.token);
+                let attendance = attendanceList.length > 0 ? attendanceList[attendanceList.length - 1] : null;
+
+                let shouldShowHere = false;
+                let statusClass = "present";
+                let actionHtml = "";
+                let displayName = `${op.name} (${op.token})`;
+
+                if (!attendance || attendance.status === "Present") {
+                    if (isBaseLine) {
+                        shouldShowHere = true;
+                        presentCount++;
+                        statusClass = "present";
+                        actionHtml = `
+                            <button class="btn-action btn-transfer" onclick="openTransferModal('${op.token}', '${op.name}', event)">Transfer</button>
+                            <button class="btn-action btn-absent-ic" onclick="markAbsentByIC('${op.token}', '${op.name}', event)">Absent</button>
+                        `;
+                    }
+                } else {
+                    if (attendance.status === "Absent") {
+                        if (isBaseLine) {
+                            shouldShowHere = true;
+                            statusClass = "absent";
+                            actionHtml = `
+                                <span class="status-badge badge-red">[${attendance.reason}]</span>
+                                <button class="btn-action btn-present" onclick="markPresent('${op.token}', event)">Mark Present</button>
+                            `;
+                        }
+                    } 
+                    else if (attendance.status === "Transfer") {
+                        let targetLine = attendance.deployedLine; 
+                        
+                        if (targetLine === lineName) {
+                            shouldShowHere = true;
+                            presentCount++;
+                            statusClass = "present";
+                            actionHtml = `
+                                <span class="status-badge badge-green">[From ${op.line}]</span>
+                                <button class="btn-action btn-absent-ic" onclick="markAbsentByIC('${op.token}', '${op.name}', event)">Absent</button>
+                            `;
+                            displayName = `<span style="color:var(--primary); font-weight:700;">${op.name} (${op.token})</span>`; 
+                        } else if (isBaseLine) {
+                            shouldShowHere = true;
+                            statusClass = "absent"; 
+                            actionHtml = `<span class="status-badge badge-orange">[-> ${attendance.deployedLine}]</span>`;
+                        }
+                    }
+                }
+
+                if (shouldShowHere) {
+                    activeOpsHtml += `
+                        <div class="operator-item">
+                            <div class="op-info"><span class="status-dot ${statusClass}"></span> ${displayName}</div>
+                            <div class="action-group">${actionHtml}</div>
+                        </div>
+                    `;
+                }
+            });
+
+            if(baseOpsCount === 0 && activeOpsHtml === "") return;
+
+            let countColor = "var(--success)";
+            if (presentCount < baseOpsCount) countColor = "var(--danger)";
+            if (presentCount === baseOpsCount) countColor = "var(--text-main)";
+
+            htmlContent += `
+                <div class="line-card" onclick="toggleList(this)">
+                    <div class="card-header">
+                        <div class="line-name">${lineName}</div>
+                        <div class="stats">Present: <strong style="color:${countColor}; font-size:15px;">${presentCount}</strong> / ${baseOpsCount}</div>
+                    </div>
+                    <div class="operator-list">${activeOpsHtml}</div>
+                </div>
+            `;
+        });
+        container.innerHTML = htmlContent;
+    }
+
+    function toggleList(card) {
+        let list = card.querySelector('.operator-list');
+        list.style.display = list.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function openTransferModal(token, name, event) {
+        event.stopPropagation();
+        selectedToken = token;
+        document.getElementById('target-op-text').innerHTML = `Moving <strong style="color:var(--text-main);">${name} (${token})</strong> to:`;
+        document.getElementById('transfer-modal').style.display = 'block';
+        document.getElementById('overlay').style.display = 'block';
+    }
+
+    function closeModal() {
+        document.getElementById('transfer-modal').style.display = 'none';
+        document.getElementById('overlay').style.display = 'none';
+    }
+
+    async function confirmTransfer() {
+        let newLine = document.getElementById('line-dropdown').value;
+        closeModal();
+        
+        document.getElementById('loader').style.display = 'block';
+        document.getElementById('loader').innerText = "Updating Sheet... Please wait.";
+
+        try {
+            await fetch(`${API_URL}?action=transfer&token=${selectedToken}&newLine=${newLine}`, { method: 'POST', mode: 'no-cors' });
+            setTimeout(() => { loadDashboard(); }, 2500);
+        } catch (e) {
+            alert("Transfer failed. Check connection.");
+            document.getElementById('loader').style.display = 'none';
+        }
+    }
+
+    async function markPresent(token, event) {
+        event.stopPropagation();
+        let confirmAction = confirm("Are you sure you want to override and mark this operator as PRESENT?");
+        if(!confirmAction) return;
+
+        document.getElementById('loader').style.display = 'block';
+        document.getElementById('loader').innerText = "Marking Present...";
+
+        try {
+            await fetch(`${API_URL}?action=icMarkPresent&token=${token}&reason=In-Charge Override`, { method: 'POST', mode: 'no-cors' });
+            setTimeout(() => { loadDashboard(); }, 2500);
+        } catch(e) {
+            alert("Action failed. Check connection.");
+            document.getElementById('loader').style.display = 'none';
+        }
+    }
+
+    async function markAbsentByIC(token, name, event) {
+        event.stopPropagation();
+        let confirmAction = confirm(`Kya aap ${name} (${token}) ko ABSENT mark karna chahte hain?`);
+        if(!confirmAction) return;
+
+        let reason = prompt("Absent ka reason likhein (e.g., PL, SL, Bina bataye):", "IC Override / No Show");
+        if(reason === null) return; 
+        if(reason.trim() === "") reason = "IC Override / No Show";
+
+        document.getElementById('loader').style.display = 'block';
+        document.getElementById('loader').innerText = "Marking Absent...";
+
+        try {
+            await fetch(`${API_URL}?action=icMarkAbsent&token=${token}&reason=${encodeURIComponent(reason)}`, { method: 'POST', mode: 'no-cors' });
+            setTimeout(() => { loadDashboard(); }, 2500);
+        } catch(e) {
+            alert("Action failed. Check connection.");
+            document.getElementById('loader').style.display = 'none';
+        }
+    }
+</script>
+
+</body>
+</html>
