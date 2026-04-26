@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TCF In-Charge Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1976D2; --primary-dark: #1565C0;
+            --danger: #E53935; --danger-dark: #C62828;
+            --success: #43A047; --success-dark: #2E7D32;
+            --warning: #FB8C00; --bg-color: #F3F4F6; --card-bg: #FFFFFF;
+            --text-main: #1F2937; --text-light: #6B7280; --border-color: #E5E7EB;
+        }
+        * { box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-color); margin: 0; color: var(--text-main); -webkit-font-smoothing: antialiased; }
+        .header { background: linear-gradient(135deg, var(--danger) 0%, var(--danger-dark) 100%); color: white; padding: 15px; text-align: center; font-size: 20px; font-weight: 800; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        
+        #global-loader {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.7); z-index: 2000; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid var(--danger); border-radius: 50%; animation: spin 0.6s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .group-selector { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 80vh; padding: 20px; }
+        .group-btn { width: 100%; max-width: 350px; background: var(--card-bg); margin: 10px 0; padding: 20px; border-radius: 12px; border: 2px solid transparent; font-size: 20px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: 0.2s; }
+        .group-btn:active { transform: scale(0.98); } .group-btn:hover { border-color: var(--danger); }
+        
+        .container { padding: 10px; max-width: 800px; margin: 0 auto; display: none; }
+        .line-card { background: var(--card-bg); margin-bottom: 10px; border-radius: 12px; padding: 15px; border: 1px solid var(--border-color); box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .card-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        .line-name { font-size: 17px; font-weight: 800; }
+        .stats-box { background: #F3F4F6; padding: 6px 12px; border-radius: 8px; display: flex; align-items: baseline; gap: 2px; }
+        
+        .operator-list { display: none; margin-top: 12px; border-top: 1px dashed var(--border-color); padding-top: 10px; }
+        .operator-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #F9FAFB; align-items: center; gap: 10px; }
+        .op-info { flex: 1; }
+        .op-skills { font-size: 10px; color: #9CA3AF; margin-top: 2px; font-weight: 500; }
+        .status-dot { height: 10px; width: 10px; border-radius: 50%; display: inline-block; margin-right: 8px; }
+        .present { background-color: var(--success); } .absent { background-color: var(--danger); } .taskcover { background-color: var(--primary); }
+        
+        .action-group { display: flex; gap: 6px; align-items: center; flex-shrink: 0; }
+        .btn-action { border: none; padding: 7px 12px; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; font-family: 'Inter', sans-serif; }
+        .btn-transfer { background: #E0F2FE; color: var(--primary-dark); }
+        .btn-present { background: #DCFCE7; color: var(--success-dark); }
+        .btn-absent-ic { background: #FEE2E2; color: var(--danger-dark); }
+        .btn-assign { background: #FEF08A; color: #92400E; }
+        
+        .status-badge { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 4px; display: inline-block; margin-bottom: 3px; }
+        .badge-red { background: #FEE2E2; color: var(--danger-dark); }
+        .badge-green { background: #DCFCE7; color: var(--success-dark); }
+        .badge-replace { background: #FEF9C3; color: #854D0E; border: 1px solid #FDE047; }
+        
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; backdrop-filter: blur(2px); }
+        .modal-box { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; padding: 25px; border-radius: 16px; width: 90%; max-width: 340px; z-index: 1000; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        select { width: 100%; padding: 12px; margin-bottom: 20px; border-radius: 8px; border: 1px solid #ddd; outline: none; }
+    </style>
+</head>
+<body>
+
+<div id="global-loader"><div class="spinner"></div></div>
+<div class="header" id="header-text">TCF Deployment</div>
+
+<div class="group-selector" id="group-screen">
+    <h3>Select Shift Group</h3>
+    <button class="group-btn" onclick="selectGroup('A')">Group A</button>
+    <button class="group-btn" onclick="selectGroup('B')">Group B</button>
+    <button class="group-btn" onclick="selectGroup('C')">Group C</button>
+</div>
+
+<div class="container" id="dashboard-screen"></div>
+<div class="modal-overlay" id="overlay"></div>
+
+<div class="modal-box" id="transfer-modal">
+    <h4>Move Operator</h4><div id="target-op-text" style="font-size:13px; color:#6B7280; margin-bottom:15px;"></div>
+    <select id="line-dropdown"></select>
+    <div style="display:flex; gap:10px;"><button class="btn-action" style="flex:1; background:#eee;" onclick="closeModal('transfer-modal')">Cancel</button><button class="btn-action btn-present" style="flex:1;" onclick="confirmTransfer()">Confirm</button></div>
+</div>
+
+<div class="modal-box" id="assign-modal">
+    <h4>Assign Critical Task</h4><div id="assign-op-text" style="font-size:13px; color:#6B7280; margin-bottom:15px;"></div>
+    <select id="task-dropdown"></select>
+    <div style="display:flex; gap:10px;"><button class="btn-action" style="flex:1; background:#eee;" onclick="closeModal('assign-modal')">Cancel</button><button class="btn-action btn-present" style="flex:1;" onclick="confirmAssignTask()">Assign</button></div>
+</div>
+
+<script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbx237q9i1lO7PiMfTpoA0ln9PuEO0lpf9uFBfjdoTujDqxTGzgRLyqA89xjkKxEq6jG/exec"; 
+    const lines = ["Trim 1", "Trim 2", "Underbody", "Engine MO1", "Engine MO3", "New Line", "Trim 3", "Final Line", "CSC Line", "D2D Line"];
+    let currentGroup = ""; let selectedToken = ""; let autoRefreshInterval = null;
+    let globalMissingTasks = {}; let openTabs = {}; 
+
+    const dropdown = document.getElementById('line-dropdown');
+    lines.forEach(line => { let opt = document.createElement('option'); opt.value = line; opt.innerHTML = line; dropdown.appendChild(opt); });
+
+    function showLoading() { document.getElementById('global-loader').style.display = 'flex'; }
+    function hideLoading() { document.getElementById('global-loader').style.display = 'none'; }
+
+    async function selectGroup(group) {
+        currentGroup = group; 
+        document.getElementById('group-screen').style.display = 'none';
+        document.getElementById('header-text').innerText = `TCF Deployment - Group ${group}`;
+        showLoading(); 
+        await loadDashboard(); 
+        hideLoading();
+        autoRefreshInterval = setInterval(() => loadDashboard(), 10000); 
+    }
+
+    async function loadDashboard() {
+        if(!currentGroup) return;
+        try {
+            const response = await fetch(`${API_URL}?group=${currentGroup}`);
+            const data = await response.json();
+            renderDashboard(data);
+        } catch (e) { console.log("Sync Error"); }
+    }
+
+    function renderDashboard(data) {
+        let container = document.getElementById('dashboard-screen');
+        container.style.display = 'block';
+        let missingTasksByLine = {}; let taskCoverage = {};
+
+        function getAtt(token) { return data.attendanceToday.filter(a => a.token === token).pop(); }
+
+        data.operators.forEach(op => {
+            let att = getAtt(op.token);
+            if (att && att.status === "TaskCover") taskCoverage[op.line + "_" + att.deployedLine.toLowerCase()] = op.name;
+        });
+
+        data.operators.forEach(op => {
+            let att = getAtt(op.token);
+            if (att && att.status === "Absent" && op.primaryTask) {
+                if (!taskCoverage[op.line + "_" + op.primaryTask.toLowerCase()]) {
+                    if (!missingTasksByLine[op.line]) missingTasksByLine[op.line] = [];
+                    missingTasksByLine[op.line].push(op.primaryTask);
+                }
+            }
+        });
+        globalMissingTasks = missingTasksByLine;
+
+        let htmlContent = "";
+        lines.forEach(lineName => {
+            let basicOps = []; let extraOps = []; let presentCount = 0; let bFilled = 0; let eFilled = 0;
+            let basicAllocated = data.operators.filter(op => op.line === lineName && op.deploymentType === 'Basic').length;
+            let extraAllocated = data.operators.filter(op => op.line === lineName && op.deploymentType === 'Extra').length;
+
+            data.operators.forEach(op => {
+                let att = getAtt(op.token);
+                let isOriginal = (op.line === lineName);
+                let isDeployedHere = (att && att.status === "Transfer" && att.deployedLine === lineName) || (isOriginal && (!att || att.status !== "Transfer"));
+
+                if (isDeployedHere) {
+                    let isAbsent = (att && att.status === "Absent");
+                    let isTransferOut = (att && att.status === "Transfer" && att.deployedLine !== lineName);
+                    let isTaskCover = (att && att.status === "TaskCover");
+                    let isPresentNow = (!isAbsent && !isTransferOut);
+
+                    if(isPresentNow) {
+                        presentCount++;
+                        if(op.deploymentType === 'Extra') eFilled++; else bFilled++;
+                    }
+
+                    // Skills Logic
+                    let skillsDisplay = `<div class="op-skills">Skills: ${op.skills || 'N/A'}</div>`;
+                    let skillTag = "";
+                    if (isPresentNow && op.skills && missingTasksByLine[lineName]) {
+                        let matched = missingTasksByLine[lineName].find(t => op.skills.toLowerCase().includes(t.toLowerCase()));
+                        if(matched && op.deploymentType === 'Extra') skillTag = `<span class="status-badge badge-replace">🎯 REPLACE: ${matched.toUpperCase()}</span><br>`;
+                    }
+
+                    let actionHtml = isPresentNow ? 
+                        `<div class="action-group">
+                            ${op.deploymentType==='Extra' ? `<button class="btn-action btn-assign" onclick="openAssignModal('${op.token}','${op.name}','${lineName}',event)">Assign</button>` : ''}
+                            <button class="btn-action btn-transfer" onclick="openTransferModal('${op.token}','${op.name}',event)">Move</button>
+                            <button class="btn-action btn-absent-ic" onclick="markAbsentByIC('${op.token}','${op.name}',event)">Absent</button>
+                        </div>` :
+                        `<div class="action-group"><button class="btn-action btn-present" onclick="markPresent('${op.token}',event)">Present</button></div>`;
+
+                    let subText = "";
+                    if (!isPresentNow && isOriginal && op.primaryTask) {
+                        let cov = taskCoverage[op.line + "_" + op.primaryTask.toLowerCase()];
+                        subText = cov ? `<div style="font-size:11px;color:var(--success-dark);font-weight:700;">✅ Covered: ${cov}</div>` : `<div style="font-size:11px;color:var(--danger);font-weight:700;">🛑 Empty: ${op.primaryTask}</div>`;
+                    } else {
+                        subText = isTaskCover ? `<div style="font-size:11px;color:var(--primary-dark);font-weight:700;">🛠️ Task: ${att.deployedLine}</div>` : skillsDisplay;
+                    }
+
+                    let opHtml = `<div class="operator-item">
+                        <div class="op-info">
+                            <div>
+                                <span class="status-dot ${isAbsent||isTransferOut?'absent':(isTaskCover?'taskcover':'present')}"></span>
+                                ${att && att.status === "Transfer" ? `<span class="status-badge badge-green">From ${op.line}</span> ` : ""}
+                                <span style="font-size:11px;color:#888;">[${op.deploymentType[0]}]</span> <strong>${op.name}</strong>
+                            </div>
+                            <div style="margin-left:18px;">${skillTag}${subText}</div>
+                        </div>
+                        ${actionHtml}
+                    </div>`;
+                    
+                    if(op.deploymentType === 'Extra') extraOps.push(opHtml); else basicOps.push(opHtml);
+                }
+            });
+
+            if(basicAllocated + extraAllocated === 0 && basicOps.length === 0 && extraOps.length === 0) return;
+            let tCol = (presentCount < basicAllocated) ? "var(--danger)" : "var(--success-dark)";
+            let isExpanded = openTabs[lineName] ? 'style="display:block;"' : ''; 
+
+            htmlContent += `<div class="line-card">
+                <div class="card-header" onclick="toggleLine('${lineName}')">
+                    <div class="line-name">${lineName}</div>
+                    <div class="stats-box">
+                        <span style="color:#6B7280;font-size:12px;">Present:</span>
+                        <span style="font-weight:700;font-size:13px;">${bFilled}+${eFilled}</span>
+                        <span style="margin:0 2px; color:#6B7280;">:</span>
+                        <span style="color:${tCol};font-weight:900;font-size:20px;">${presentCount}/${basicAllocated}</span>
+                    </div>
+                </div>
+                <div class="operator-list" id="list-${lineName}" ${isExpanded}>${basicOps.join('')}${extraOps.join('')}</div>
+            </div>`;
+        });
+        container.innerHTML = htmlContent;
+    }
+
+    function toggleLine(ln) { let el = document.getElementById(`list-${ln}`); let open = el.style.display !== 'block'; el.style.display = open ? 'block' : 'none'; openTabs[ln] = open; }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; document.getElementById('overlay').style.display = 'none'; }
+    
+    async function runAction(action, params) {
+        showLoading();
+        try {
+            await fetch(`${API_URL}?action=${action}&${params}`, { method: 'POST', mode: 'no-cors' });
+            await loadDashboard(); 
+            setTimeout(async () => { await loadDashboard(); hideLoading(); }, 800); 
+        } catch (e) { alert("Error"); hideLoading(); }
+    }
+
+    function openTransferModal(token, name, event) { event.stopPropagation(); selectedToken = token; document.getElementById('target-op-text').innerHTML = `Move <strong>${name}</strong> to:`; document.getElementById('transfer-modal').style.display = 'block'; document.getElementById('overlay').style.display = 'block'; }
+    function confirmTransfer() { let nl = document.getElementById('line-dropdown').value; closeModal('transfer-modal'); runAction('transfer', `token=${selectedToken}&newLine=${nl}`); }
+    
+    function openAssignModal(token, name, line, event) { 
+        event.stopPropagation(); 
+        let tasks = globalMissingTasks[line] || []; 
+        if(tasks.length===0){alert("No critical tasks empty!"); return;}
+        selectedToken = token; 
+        document.getElementById('assign-op-text').innerHTML = `Assign <strong>${name}</strong> to:`; 
+        let dd = document.getElementById('task-dropdown'); dd.innerHTML = ""; 
+        tasks.forEach(t => { let opt = document.createElement('option'); opt.value = t; opt.innerText = t; dd.appendChild(opt); }); 
+        document.getElementById('assign-modal').style.display = 'block'; document.getElementById('overlay').style.display = 'block'; 
+    }
+    function confirmAssignTask() { let t = document.getElementById('task-dropdown').value; closeModal('assign-modal'); runAction('allocateTask', `token=${selectedToken}&taskName=${encodeURIComponent(t)}`); }
+    function markPresent(t, e) { e.stopPropagation(); runAction('icMarkPresent', `token=${t}&reason=IC Override`); }
+    function markAbsentByIC(t, n, e) { e.stopPropagation(); let r = prompt("Absent Reason:", "No Show"); if(r) runAction('icMarkAbsent', `token=${t}&reason=${r}`); }
+</script>
+</body>
+</html>
