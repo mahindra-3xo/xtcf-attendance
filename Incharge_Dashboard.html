@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -203,6 +202,10 @@
         
         .btn-absent-ic { background: #FEE2E2; color: var(--danger-dark); }
         .btn-absent-ic:active { background: #FECACA; }
+        
+        /* 🔥 NAYA: SMS BUTTON STYLING 🔥 */
+        .btn-sms { background: #E0E7FF; color: #3730A3; }
+        .btn-sms:active { background: #C7D2FE; }
 
         .status-badge {
             font-size: 11px;
@@ -296,7 +299,7 @@
 
 <script>
     // 👇👇👇 YAHA APNA NAYA WEB APP URL PASTE KARNA MAT BHULNA 👇👇👇
-    const API_URL = "https://script.google.com/macros/s/AKfycbzg44SKe6YD-xk4NCdL8vJZUfWY94iZMY4GEl9ItMxw8Ywdb8aLCr3Gfy1e4wf2hcAf/exec"; 
+    const API_URL = "https://script.google.com/macros/s/AKfycbxPI04m4sX7v9arVn1xkskBV1X2w4S2Ir2eFPCKJ0HF3SOKw6fKRsptJ4yu0tC6Xf8g/exec"; 
     
     const lines = ["Trim 1", "Trim 2", "Underbody", "Engine MO1", "Engine MO3", "New Line", "Trim 3", "Final Line", "CSC Line", "D2D Line"];
     
@@ -374,8 +377,16 @@
                         if (isBaseLine) {
                             shouldShowHere = true;
                             statusClass = "absent";
+                            
+                            // 🔥 NAYA: Agar mobile number hai, toh SMS button dikhao 🔥
+                            let smsBtn = "";
+                            if(op.mobile) {
+                                smsBtn = `<button class="btn-action btn-sms" onclick="sendSMS('${op.mobile}', '${op.name}', event)">📱 SMS</button>`;
+                            }
+
                             actionHtml = `
                                 <span class="status-badge badge-red">[${attendance.reason}]</span>
+                                ${smsBtn}
                                 <button class="btn-action btn-present" onclick="markPresent('${op.token}', event)">Mark Present</button>
                             `;
                         }
@@ -499,6 +510,25 @@
             alert("Action failed. Check connection.");
             document.getElementById('loader').style.display = 'none';
         }
+    }
+
+    // 🔥 NAYA FUNCTION: SEND SMS 🔥
+    function sendSMS(mobile, name, event) {
+        event.stopPropagation(); // Card ko collapse hone se rokne ke liye
+        
+        if(!mobile || mobile.trim() === "") {
+            alert(`⚠️ ${name} ke parent ka mobile number sheet mein nahi hai!`);
+            return;
+        }
+
+        // Factory ka custom message
+        let msg = `TCF Mahindra Nashik: Aapka beta/beti ${name} aaj duty par upasthit nahi hai. Kripya dhyan dein. - Shift In-Charge`;
+        
+        // URL format mein encode karna taaki spaces aur special characters issue na karein
+        let encodedMsg = encodeURIComponent(msg);
+        
+        // Phone ka default SMS app open karna
+        window.location.href = `sms:${mobile}?body=${encodedMsg}`;
     }
 </script>
 
