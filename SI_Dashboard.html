@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TCF In-Charge Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1976D2; --primary-dark: #1565C0;
+            --danger: #E53935; --danger-dark: #C62828;
+            --success: #43A047; --success-dark: #2E7D32;
+            --warning: #FB8C00; --bg-color: #F3F4F6; --card-bg: #FFFFFF;
+            --text-main: #1F2937; --text-light: #6B7280; --border-color: #E5E7EB;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-color); color: var(--text-main); -webkit-font-smoothing: antialiased; }
+
+        /* HEADER */
+        .header {
+            background: linear-gradient(135deg, var(--danger) 0%, var(--danger-dark) 100%);
+            color: white; padding: 14px 15px;
+            display: flex; align-items: center; justify-content: space-between;
+            position: sticky; top: 0; z-index: 100;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+        .header-title { font-size: 18px; font-weight: 800; flex: 1; text-align: center; }
+        .header-back { font-size: 22px; cursor: pointer; padding: 2px 8px; display: none; opacity: 0.85; }
+
+        /* CONTROL BAR */
+        #control-bar {
+            display: none;
+            background: #1F2937;
+            padding: 9px 14px;
+            position: sticky; top: 52px; z-index: 99;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+            align-items: center; justify-content: space-between;
+            flex-wrap: wrap; gap: 8px;
+        }
+
+
+
+        /* SMS Batch button */
+        #sms-parent-btn {
+            display: none;
+            background: #FF6F00; color: white; border: none;
+            border-radius: 8px; padding: 7px 13px;
+            font-size: 12px; font-weight: 800; cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            animation: pulseBg 1.8s infinite;
+        }
+        @keyframes pulseBg { 0%,100%{background:#FF6F00;} 50%{background:#BF360C;} }
+
+
+
+        /* LOADER */
+        #global-loader { display:none; position:fixed; inset:0; background:rgba(255,255,255,0.75); z-index:2000; flex-direction:column; align-items:center; justify-content:center; }
+        .spinner { width:40px; height:40px; border:4px solid #f3f3f3; border-top:4px solid var(--danger); border-radius:50%; animation:spin 0.6s linear infinite; }
+        @keyframes spin { to { transform:rotate(360deg); } }
+
+        /* GROUP SELECTOR */
+        .group-selector { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:80vh; padding:30px 20px; }
+        .group-selector h3 { font-size:17px; font-weight:700; margin-bottom:20px; color:#374151; }
+        .group-btn { width:100%; max-width:340px; background:var(--card-bg); margin:8px 0; padding:20px; border-radius:14px; border:2px solid transparent; font-size:20px; font-weight:700; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,0.07); transition:0.2s; font-family:'Inter',sans-serif; }
+        .group-btn:active { transform:scale(0.97); }
+        .group-btn:hover  { border-color:var(--danger); }
+
+        /* DASHBOARD */
+        .container { padding:10px; max-width:800px; margin:0 auto; display:none; }
+        .line-card { background:var(--card-bg); margin-bottom:10px; border-radius:12px; padding:15px; border:1px solid var(--border-color); box-shadow:0 2px 5px rgba(0,0,0,0.03); }
+        .card-header { display:flex; justify-content:space-between; align-items:center; cursor:pointer; }
+        .line-name { font-size:16px; font-weight:800; }
+
+        /* Stats */
+        .stats-box { background:#F3F4F6; padding:6px 11px; border-radius:8px; display:flex; align-items:baseline; gap:3px; }
+        .s-label { color:#6B7280; font-size:11px; font-weight:600; }
+        .s-val   { font-size:13px; font-weight:700; }
+        .s-sep   { color:#9CA3AF; font-size:12px; }
+        .s-main  { font-size:22px; font-weight:900; }
+        .c-red   { color:var(--danger); }
+        .c-green { color:var(--success-dark); }
+
+        /* Operators */
+        .operator-list { display:none; margin-top:12px; border-top:1px dashed var(--border-color); padding-top:10px; }
+        .operator-item { display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #F9FAFB; align-items:center; gap:8px; }
+        .op-info { flex:1; }
+        .op-skills { font-size:10px; color:#9CA3AF; margin-top:2px; font-weight:500; }
+        .status-dot { height:10px; width:10px; border-radius:50%; display:inline-block; margin-right:6px; flex-shrink:0; }
+        .present   { background:var(--success); }
+        .absent    { background:var(--danger); }
+        .taskcover { background:var(--primary); }
+
+        /* Buttons */
+        .action-group { display:flex; gap:5px; align-items:center; flex-shrink:0; flex-wrap:wrap; justify-content:flex-end; }
+        .btn-action { border:none; padding:7px 10px; border-radius:6px; font-size:11px; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; white-space:nowrap; }
+        .btn-transfer  { background:#E0F2FE; color:var(--primary-dark); }
+        .btn-present   { background:#DCFCE7; color:var(--success-dark); }
+        .btn-absent-ic { background:#FEE2E2; color:var(--danger-dark); }
+        .btn-assign    { background:#FEF08A; color:#92400E; }
+        .btn-sms       { background:#FFF3E0; color:#BF360C; }
+
+        /* Badges */
+        .status-badge  { font-size:10px; font-weight:700; padding:3px 7px; border-radius:4px; display:inline-block; margin-bottom:2px; }
+        .badge-red     { background:#FEE2E2; color:var(--danger-dark); }
+        .badge-green   { background:#DCFCE7; color:var(--success-dark); }
+        .badge-replace { background:#FEF9C3; color:#854D0E; border:1px solid #FDE047; }
+
+        /* MODALS */
+        .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:999; backdrop-filter:blur(2px); }
+        .modal-box { display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#fff; padding:24px; border-radius:16px; width:90%; max-width:340px; z-index:1000; box-shadow:0 10px 25px rgba(0,0,0,0.12); }
+        .modal-box h4 { margin-bottom:10px; font-size:16px; }
+        .modal-sub { font-size:13px; color:#6B7280; margin-bottom:14px; }
+        select { width:100%; padding:12px; margin-bottom:16px; border-radius:8px; border:1.5px solid #ddd; outline:none; font-family:'Inter',sans-serif; font-size:14px; }
+        .modal-btns { display:flex; gap:10px; }
+        .modal-btns button { flex:1; }
+
+        /* SMS Modal */
+        #sms-modal .sms-preview {
+            background: #FFF8E1;
+            border: 1px solid #FFE082;
+            border-radius: 10px;
+            padding: 12px;
+            font-size: 13px;
+            line-height: 1.5;
+            margin-bottom: 14px;
+            white-space: pre-wrap;
+        }
+        #sms-modal .sms-number {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--success-dark);
+            margin-bottom: 10px;
+        }
+
+        /* TOAST */
+        .toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); color:white; padding:11px 20px; border-radius:30px; font-size:13px; font-weight:700; box-shadow:0 6px 20px rgba(0,0,0,0.25); z-index:3000; white-space:nowrap; animation:slideUp 0.3s ease; max-width:88vw; text-align:center; }
+        .toast-auto { background:#1a237e; }
+        .toast-sms  { background:#BF360C; }
+        .toast-info { background:#37474F; }
+        @keyframes slideUp { from{opacity:0;bottom:0;} to{opacity:1;bottom:24px;} }
+    </style>
+</head>
+<body>
+
+<div id="global-loader"><div class="spinner"></div></div>
+
+<!-- HEADER -->
+<div class="header">
+    <span class="header-back" id="back-btn" onclick="goBack()">&#8592;</span>
+    <div class="header-title" id="header-text">TCF Deployment</div>
+    <div style="width:36px;"></div>
+</div>
+
+<!-- CONTROL BAR -->
+<div id="control-bar">
+    <!-- Batch SMS Button -->
+    <button id="sms-parent-btn" onclick="openBatchSMSModal()">Absent: <span id="absent-count">0</span> - SMS</button>
+</div>
+
+<!-- GROUP SELECTOR -->
+<div class="group-selector" id="group-screen">
+    <h3>Shift Group Select Kara</h3>
+    <button class="group-btn" onclick="selectGroup('A')">Group A</button>
+    <button class="group-btn" onclick="selectGroup('B')">Group B</button>
+    <button class="group-btn" onclick="selectGroup('C')">Group C</button>
+</div>
+
+<!-- DASHBOARD -->
+<div class="container" id="dashboard-screen"></div>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="overlay" onclick="closeAllModals()"></div>
+
+<div class="modal-box" id="transfer-modal">
+    <h4>Operator Transfer</h4>
+    <div class="modal-sub" id="target-op-text"></div>
+    <select id="line-dropdown"></select>
+    <div class="modal-btns">
+        <button class="btn-action" style="background:#eee;" onclick="closeAllModals()">Cancel</button>
+        <button class="btn-action btn-present" onclick="confirmTransfer()">Confirm Transfer</button>
+    </div>
+</div>
+
+<div class="modal-box" id="assign-modal">
+    <h4>Critical Task Assign Kara</h4>
+    <div class="modal-sub" id="assign-op-text"></div>
+    <select id="task-dropdown"></select>
+    <div class="modal-btns">
+        <button class="btn-action" style="background:#eee;" onclick="closeAllModals()">Cancel</button>
+        <button class="btn-action btn-present" onclick="confirmAssignTask()">Assign Now</button>
+    </div>
+</div>
+
+<!-- SMS Modal for Manual SMS -->
+<div class="modal-box" id="sms-modal">
+    <h4>Send SMS to Parents</h4>
+    <div class="sms-number" id="sms-parent-number"></div>
+    <div class="sms-preview" id="sms-message-preview"></div>
+    <div class="modal-btns">
+        <button class="btn-action" style="background:#eee;" onclick="closeAllModals()">Cancel</button>
+        <button class="btn-action btn-sms" onclick="confirmSendSMS()" style="background:#FF6F00;color:white;">Send SMS</button>
+    </div>
+</div>
+
+<!-- Batch SMS Modal -->
+<div class="modal-box" id="batch-sms-modal" style="max-width:380px;">
+    <h4>Saglya Absent Operators chya Parents la SMS Kara!!</h4>
+    <div class="modal-sub">Khali absent operators chi list ahe. Ek-ek karun SMS pathava:</div>
+    <div id="batch-sms-list" style="max-height:250px;overflow-y:auto;margin-bottom:14px;"></div>
+    <div class="modal-btns">
+        <button class="btn-action" style="background:#eee;" onclick="closeAllModals()">Close</button>
+    </div>
+</div>
+
+<script>
+// ════════════════════════════════════════
+//  CONFIG
+// ════════════════════════════════════════
+const API_URL = "https://script.google.com/macros/s/AKfycbx237q9i1lO7PiMfTpoA0ln9PuEO0lpf9uFBfjdoTujDqxTGzgRLyqA89xjkKxEq6jG/exec";
+const LINES   = ["Trim 1","Trim 2","Underbody","Engine MO1","Engine MO3","New Line","Trim 3","Final Line","CSC Line","D2D Line"];
+
+// ════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════
+let currentGroup       = "";
+let selectedToken      = "";
+let autoRefreshTimer   = null;
+let openTabs           = {};
+let globalMissingTasks = {};
+
+// Parent SMS
+let absentOperators    = [];
+let smsSentSet         = new Set();
+let currentSMSData     = null;
+
+// ════════════════════════════════════════
+//  INIT: line dropdown
+// ════════════════════════════════════════
+const lineDropdown = document.getElementById('line-dropdown');
+LINES.forEach(l => {
+    let o = document.createElement('option'); o.value = l; o.innerText = l;
+    lineDropdown.appendChild(o);
+});
+
+// ════════════════════════════════════════
+//  LOADER
+// ════════════════════════════════════════
+function showLoading() { document.getElementById('global-loader').style.display = 'flex'; }
+function hideLoading() { document.getElementById('global-loader').style.display = 'none'; }
+
+// ════════════════════════════════════════
+//  GROUP SELECT / BACK
+// ════════════════════════════════════════
+async function selectGroup(group) {
+    currentGroup = group;
+    document.getElementById('group-screen').style.display  = 'none';
+    document.getElementById('control-bar').style.display   = 'flex';
+    document.getElementById('back-btn').style.display      = 'inline';
+    document.getElementById('header-text').innerText       = `TCF - Group ${group}`;
+    
+    showLoading();
+    await loadDashboard();
+    hideLoading();
+    autoRefreshTimer = setInterval(loadDashboard, 10000);
+}
+
+function goBack() {
+    clearInterval(autoRefreshTimer);
+    currentGroup = "";
+    selectedToken = "";
+    absentOperators = [];
+    smsSentSet.clear();
+    openTabs = {};
+    
+    document.getElementById('group-screen').style.display      = 'flex';
+    document.getElementById('dashboard-screen').style.display  = 'none';
+    document.getElementById('control-bar').style.display       = 'none';
+    document.getElementById('sms-parent-btn').style.display    = 'none';
+    document.getElementById('back-btn').style.display          = 'none';
+    document.getElementById('header-text').innerText           = 'TCF Deployment';
+}
+
+// ════════════════════════════════════════
+//  LOAD DATA
+// ════════════════════════════════════════
+async function loadDashboard() {
+    if (!currentGroup) return;
+    try {
+        const res  = await fetch(`${API_URL}?group=${currentGroup}`);
+        const data = await res.json();
+        renderDashboard(data);
+        updateSMSPanel(data);
+    } catch(e) { console.log("Sync Error:", e); }
+}
+
+function getAtt(data, token) {
+    return data.attendanceToday.filter(a => a.token === token).pop();
+}
+
+// ════════════════════════════════════════
+//  RENDER DASHBOARD - FIXED EXTRA TRANSFER COUNT
+// ════════════════════════════════════════
+function renderDashboard(data) {
+    let container = document.getElementById('dashboard-screen');
+    container.style.display = 'block';
+
+    let missingByLine = {}, taskCoverage = {};
+
+    data.operators.forEach(op => {
+        let att = getAtt(data, op.token);
+        if (att && att.status === "TaskCover")
+            taskCoverage[op.line + "_" + att.deployedLine.toLowerCase()] = op.name;
+    });
+
+    data.operators.forEach(op => {
+        let att = getAtt(data, op.token);
+        if (att && att.status === "Absent" && op.deploymentType === 'Basic' && op.primaryTask) {
+            let key = op.line + "_" + op.primaryTask.toLowerCase();
+            if (!taskCoverage[key]) {
+                if (!missingByLine[op.line]) missingByLine[op.line] = [];
+                missingByLine[op.line].push(op.primaryTask);
+            }
+        }
+    });
+    globalMissingTasks = missingByLine;
+
+    let html = "";
+
+    LINES.forEach(lineName => {
+        let basicOps = [], extraOps = [];
+        let presentCount = 0, bFilled = 0, eFilled = 0;
+        let basicAlloc = data.operators.filter(op => op.line === lineName && op.deploymentType === 'Basic').length;
+        let extraAlloc = data.operators.filter(op => op.line === lineName && op.deploymentType === 'Extra').length;
+
+        data.operators.forEach(op => {
+            let att          = getAtt(data, op.token);
+            let isOriginal   = op.line === lineName;
+            let isTransferIn = att && att.status === "Transfer" && att.deployedLine === lineName;
+            let isTransferOut= att && att.status === "Transfer" && att.deployedLine !== lineName && isOriginal;
+            let isAbsent     = att && att.status === "Absent";
+            let isTaskCover  = att && att.status === "TaskCover";
+            let isHere       = isTransferIn || (isOriginal && (!att || att.status !== "Transfer"));
+
+            if (!isHere) return;
+
+            let isPresent = !isAbsent && !isTransferOut;
+            
+            // FIX: Count ALL present operators including Extra transfers
+            if (isPresent) {
+                presentCount++;
+                if (isTransferIn) {
+                    if (op.deploymentType === 'Extra') eFilled++; else bFilled++;
+                } else if (isOriginal) {
+                    if (op.deploymentType === 'Extra') eFilled++; else bFilled++;
+                }
+            }
+
+            // Replace badge
+            let skillTag = "";
+            if (isPresent && op.skills && missingByLine[lineName]) {
+                let match = missingByLine[lineName].find(t =>
+                    op.skills.toLowerCase().split(',').some(s => s.trim().includes(t.toLowerCase())));
+                if (match && op.deploymentType === 'Extra')
+                    skillTag = `<span class="status-badge badge-replace">REPLACE: ${match.toUpperCase()}</span><br>`;
+            }
+
+            // Sub-text
+            let sub = "";
+            if (!isPresent && isOriginal && op.primaryTask) {
+                let cov = taskCoverage[op.line + "_" + op.primaryTask.toLowerCase()];
+                sub = cov
+                    ? `<div style="font-size:11px;color:var(--success-dark);font-weight:700;">Covered: ${cov}</div>`
+                    : `<div style="font-size:11px;color:var(--danger);font-weight:700;">Empty: ${op.primaryTask}</div>`;
+            } else if (isTaskCover) {
+                sub = `<div style="font-size:11px;color:var(--primary-dark);font-weight:700;">Task: ${att.deployedLine}</div>`;
+            } else {
+                sub = `<div class="op-skills">Skills: ${op.skills || 'N/A'}</div>`;
+            }
+
+            // SMS button for absent operators with parent number
+            let pm = (op.mobile || "").replace(/\D/g,'');
+            let smsBtn = (isAbsent && pm)
+                ? `<button class="btn-action btn-sms" onclick="sendSMS('${op.name}','${pm}',event)">SMS</button>`
+                : "";
+
+            // Actions
+            let actions = isPresent
+                ? `<div class="action-group">
+                      ${op.deploymentType === 'Extra'
+                          ? `<button class="btn-action btn-assign" onclick="openAssignModal('${op.token}','${op.name}','${lineName}',event)">Assign</button>`
+                          : ''}
+                      <button class="btn-action btn-transfer" onclick="openTransferModal('${op.token}','${op.name}',event)">Transfer</button>
+                      <button class="btn-action btn-absent-ic" onclick="markAbsentByIC('${op.token}','${op.name}','${pm}',event)">Absent</button>
+                   </div>`
+                : `<div class="action-group">
+                      ${smsBtn}
+                      <button class="btn-action btn-present" onclick="markPresent('${op.token}',event)">Mark Present</button>
+                   </div>`;
+
+            // Absent reason badge
+            let reasonBadge = "";
+            if (isAbsent && att && att.reason) {
+                reasonBadge = `<span class="status-badge badge-red" style="margin-left:6px;">[${att.reason}]</span>`;
+            }
+
+            let row = `<div class="operator-item">
+                <div class="op-info">
+                    <div style="display:flex;align-items:center;flex-wrap:wrap;gap:3px;">
+                        <span class="status-dot ${isAbsent||isTransferOut?'absent':(isTaskCover?'taskcover':'present')}"></span>
+                        ${att && att.status==="Transfer" ? `<span class="status-badge badge-green" style="margin-bottom:0;">From ${op.line}</span>` : ""}
+                        <strong style="font-size:14px;">${op.name} (${op.token})</strong>
+                        ${reasonBadge}
+                    </div>
+                    <div style="margin-left:16px;margin-top:3px;">${skillTag}${sub}</div>
+                </div>
+                ${actions}
+            </div>`;
+
+            if (op.deploymentType === 'Extra') extraOps.push(row); else basicOps.push(row);
+        });
+
+        if (!basicAlloc && !extraAlloc && !basicOps.length && !extraOps.length) return;
+
+        let bCls    = bFilled < basicAlloc ? "c-red" : "c-green";
+        let eCls    = eFilled < extraAlloc  ? "c-red" : "c-green";
+        let mainCls = presentCount < basicAlloc ? "c-red" : "c-green";
+        let isExp   = openTabs[lineName] ? 'style="display:block;"' : '';
+
+        html += `<div class="line-card">
+            <div class="card-header" onclick="toggleLine('${lineName}')">
+                <div class="line-name">${lineName}</div>
+                <div class="stats-box">
+                    <span class="s-label">Present:</span>
+                    <span class="s-val ${bCls}">${bFilled}</span>
+                    <span class="s-sep">+</span>
+                    <span class="s-val ${eCls}">${eFilled}</span>
+                    <span class="s-sep">/</span>
+                    <span class="s-val">${basicAlloc+extraAlloc}</span>
+                    <span class="s-sep" style="margin:0 4px;">:</span>
+                    <span class="s-main ${mainCls}">${presentCount}/${basicAlloc}</span>
+                </div>
+            </div>
+            <div class="operator-list" id="list-${lineName}" ${isExp}>
+                ${basicOps.join('')}${extraOps.join('')}
+            </div>
+        </div>`;
+    });
+
+    container.innerHTML = html;
+}
+
+// ══════════════════��═════════════════════
+//  AUTO DEPLOYMENT ENGINE - LINE WISE
+// ════════════════════════════════════════
+
+// Check and auto-deploy for ALL lines that have it enabled
+function checkAndAutoDeployAllLines(data) {
+    // Rebuild coverage first (needed for all lines)
+    let taskCoverage = {};
+    data.operators.forEach(op => {
+        let att = getAtt(data, op.token);
+        if (att && att.status === "TaskCover")
+            taskCoverage[op.line + "_" + att.deployedLine.toLowerCase()] = op.token;
+    });
+
+    // Process each line that has auto-deploy ON
+    LINES.forEach(lineName => {
+        if (!isLineAutoDeployEnabled(lineName)) return;
+        
+        checkAndAutoDeployForLine(data, lineName, taskCoverage);
+    });
+}
+
+// Auto-deploy for a SPECIFIC line only
+function checkAndAutoDeployForLine(data, lineName, taskCoverage) {
+    let autoDeployedSet = getLineAutoDeployedSet(lineName);
+    let autoDeployLog = getLineAutoDeployLog(lineName);
+    
+    // Find missing tasks for THIS line only
+    let missingTasks = [];
+    data.operators.forEach(op => {
+        if (op.line !== lineName) return; // Only this line
+        let att = getAtt(data, op.token);
+        if (att && att.status === "Absent" && op.deploymentType === 'Basic' && op.primaryTask) {
+            let ck = op.line + "_" + op.primaryTask.toLowerCase();
+            if (!taskCoverage[ck])
+                missingTasks.push({ line: op.line, task: op.primaryTask, absentToken: op.token });
+        }
+    });
+
+    if (!missingTasks.length) return;
+    let usedThisPass = new Set();
+
+    missingTasks.forEach(missing => {
+        let key = missing.absentToken + "_" + missing.task.toLowerCase();
+        if (autoDeployedSet.has(key)) return;
+
+        // Priority 1 - Same line Extra
+        let match = data.operators.find(op => {
+            if (op.deploymentType !== 'Extra' || op.line !== missing.line) return false;
+            let att = getAtt(data, op.token);
+            if (att && (att.status==='Absent'||att.status==='TaskCover')) return false;
+            if (usedThisPass.has(op.token) || !op.skills) return false;
+            return op.skills.toLowerCase().split(',').some(s => s.trim().includes(missing.task.toLowerCase()));
+        });
+
+        // Priority 2 - Any line Extra (but only if their line also has auto-deploy ON)
+        if (!match) {
+            match = data.operators.find(op => {
+                if (op.deploymentType !== 'Extra') return false;
+                // Only use Extra from lines that also have auto-deploy ON
+                if (!isLineAutoDeployEnabled(op.line)) return false;
+                let att = getAtt(data, op.token);
+                if (att && (att.status==='Absent'||att.status==='TaskCover')) return false;
+                if (usedThisPass.has(op.token) || !op.skills) return false;
+                return op.skills.toLowerCase().split(',').some(s => s.trim().includes(missing.task.toLowerCase()));
+            });
+        }
+
+        if (!match) return;
+
+        autoDeployedSet.add(key);
+        usedThisPass.add(match.token);
+        autoDeployLog.push({ extraToken: match.token, extraName: match.name, task: missing.task, line: missing.line });
+
+        showToast(`Auto: ${match.name} -> ${missing.task} (${lineName})`, 'auto');
+        updateAutoDeployPanel();
+        runAction('allocateTask', `token=${match.token}&taskName=${encodeURIComponent(missing.task)}`);
+    });
+}
+
+function updateAutoDeployPanel() {
+    let combinedLog = getAllAutoDeployLog();
+    if (!combinedLog.length) {
+        document.getElementById('auto-deploy-panel').style.display = 'none';
+        return;
+    }
+    document.getElementById('auto-deploy-panel').style.display = 'block';
+    document.getElementById('adp-badges').innerHTML = combinedLog.map(l =>
+        `<span class="adp-badge">
+            <span class="adp-dot"></span>
+            <strong>${l.extraName}</strong> -> ${l.task}
+            <span style="opacity:0.55;font-size:10px;">(${l.line})</span>
+         </span>`
+    ).join('');
+}
+
+// ════════════════════════════════════════
+//  MANUAL SMS FEATURE (No API - Direct SMS App)
+// ════════════════════════════════════════
+
+function buildSMSMsg(name) {
+    const today = new Date().toLocaleDateString('mr-IN', {day:'numeric', month:'long', year:'numeric'});
+    return `TCF Mahindra Nashik: ${name} aaj (${today}) duty var upasthit nahi ahe. Kripya lakshya dya. - Shift In-Charge`;
+}
+
+// DIRECT SMS - Ek click mein seedha SMS app kholta hai
+function sendSMS(name, pm, event) {
+    if (event) event.stopPropagation();
+    
+    if (!pm || pm === "") {
+        showToast('Mobile number nahi mila!', 'info');
+        return;
+    }
+    
+    let msg = buildSMSMsg(name);
+    window.location.href = `sms:+91${pm}?body=${encodeURIComponent(msg)}`;
+    showToast(`SMS: ${name} chya parent la`, 'sms');
+}
+
+function openSMSModal(token, name, parentNum, event) {
+    if (event) event.stopPropagation();
+    if (!parentNum) { showToast('Parent number nahi!', 'info'); return; }
+    
+    currentSMSData = { token, name, parentMobile: parentNum };
+    
+    document.getElementById('sms-parent-number').innerHTML = `Number: <strong>+91 ${parentNum}</strong>`;
+    document.getElementById('sms-message-preview').innerText = buildSMSMsg(name);
+    document.getElementById('sms-modal').style.display = 'block';
+    document.getElementById('overlay').style.display = 'block';
+}
+
+function confirmSendSMS() {
+    if (!currentSMSData) return;
+    
+    let body = encodeURIComponent(buildSMSMsg(currentSMSData.name));
+    smsSentSet.add(currentSMSData.token);
+    window.open(`sms:+91${currentSMSData.parentMobile}?body=${body}`, '_blank');
+    showToast(`SMS: ${currentSMSData.name} chya parent la`, 'sms');
+    closeAllModals();
+}
+
+function openBatchSMSModal() {
+    let toSend = absentOperators.filter(op => op.parentMobile);
+    if (!toSend.length) { 
+        showToast('Koi absent operator with parent number nahi', 'info'); 
+        return; 
+    }
+    
+    let listHtml = toSend.map((op, idx) => {
+        let alreadySent = smsSentSet.has(op.token);
+        return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px;border-bottom:1px solid #eee;${alreadySent?'opacity:0.5;':''}">
+            <div>
+                <strong style="font-size:14px;">${op.name}</strong>
+                <div style="font-size:11px;color:#6B7280;">+91 ${op.parentMobile}</div>
+            </div>
+            <button class="btn-action btn-sms" onclick="sendSingleFromBatch('${op.token}','${op.name}','${op.parentMobile}')" ${alreadySent?'disabled':''}>
+                ${alreadySent ? 'Sent' : 'SMS'}
+            </button>
+        </div>`;
+    }).join('');
+    
+    document.getElementById('batch-sms-list').innerHTML = listHtml;
+    document.getElementById('batch-sms-modal').style.display = 'block';
+    document.getElementById('overlay').style.display = 'block';
+}
+
+function sendSingleFromBatch(token, name, parentNum) {
+    let body = encodeURIComponent(buildSMSMsg(name));
+    smsSentSet.add(token);
+    window.open(`sms:+91${parentNum}?body=${body}`, '_blank');
+    showToast(`SMS: ${name} chya parent la`, 'sms');
+    setTimeout(() => openBatchSMSModal(), 300);
+}
+
+function updateSMSPanel(data) {
+    absentOperators = [];
+    data.operators.forEach(op => {
+        let att = getAtt(data, op.token);
+        let pm  = (op.mobile || "").replace(/\D/g,'');
+        if (att && att.status === 'Absent' && pm)
+            absentOperators.push({ token: op.token, name: op.name, parentMobile: pm });
+    });
+    let btn = document.getElementById('sms-parent-btn');
+    if (absentOperators.length) {
+        btn.style.display = 'inline-block';
+        document.getElementById('absent-count').innerText = absentOperators.length;
+    } else {
+        btn.style.display = 'none';
+    }
+}
+
+// ════════════════════════════════════════
+//  HELPERS
+// ════════════════════════════════════════
+function toggleLine(ln) {
+    let el = document.getElementById(`list-${ln}`);
+    let open = el.style.display !== 'block';
+    el.style.display = open ? 'block' : 'none';
+    openTabs[ln] = open;
+}
+
+function closeAllModals() {
+    ['transfer-modal','assign-modal','sms-modal','batch-sms-modal'].forEach(id => document.getElementById(id).style.display = 'none');
+    document.getElementById('overlay').style.display = 'none';
+    currentSMSData = null;
+}
+
+async function runAction(action, params) {
+    showLoading();
+    try {
+        await fetch(`${API_URL}?action=${action}&${params}`, { method:'POST', mode:'no-cors' });
+        await loadDashboard();
+        setTimeout(async () => { await loadDashboard(); hideLoading(); }, 800);
+    } catch(e) { alert("Connection Error!"); hideLoading(); }
+}
+
+function showToast(msg, type) {
+    let t = document.createElement('div');
+    t.className = `toast toast-${type}`; t.innerText = msg;
+    document.body.appendChild(t);
+    setTimeout(() => { t.style.opacity='0'; t.style.transition='opacity 0.4s'; }, 3000);
+    setTimeout(() => t.remove(), 3500);
+}
+
+function openTransferModal(token, name, event) {
+    event.stopPropagation(); selectedToken = token;
+    document.getElementById('target-op-text').innerHTML = `<strong>${name}</strong> la konti line var transfer karycha?`;
+    document.getElementById('transfer-modal').style.display = 'block';
+    document.getElementById('overlay').style.display = 'block';
+}
+
+function confirmTransfer() {
+    let nl = document.getElementById('line-dropdown').value;
+    closeAllModals();
+    runAction('transfer', `token=${selectedToken}&newLine=${nl}`);
+}
+
+function openAssignModal(token, name, line, event) {
+    event.stopPropagation();
+    let tasks = globalMissingTasks[line] || [];
+    if (!tasks.length) { showToast('Koi empty task nahi!', 'auto'); return; }
+    selectedToken = token;
+    document.getElementById('assign-op-text').innerHTML = `<strong>${name}</strong> la konti task dyaychi?`;
+    let dd = document.getElementById('task-dropdown'); dd.innerHTML = "";
+    tasks.forEach(t => { let o = document.createElement('option'); o.value = t; o.innerText = t; dd.appendChild(o); });
+    document.getElementById('assign-modal').style.display = 'block';
+    document.getElementById('overlay').style.display = 'block';
+}
+
+function confirmAssignTask() {
+    let t = document.getElementById('task-dropdown').value;
+    closeAllModals();
+    runAction('allocateTask', `token=${selectedToken}&taskName=${encodeURIComponent(t)}`);
+}
+
+function markPresent(token, event) {
+    event.stopPropagation();
+    runAction('icMarkPresent', `token=${token}&reason=IC Override`);
+}
+
+function markAbsentByIC(token, name, parentNum, event) {
+    event.stopPropagation();
+    let reason = prompt(`${name} Reason for Absent`, "Marked Absent");
+    if (!reason) return;
+    runAction('icMarkAbsent', `token=${token}&reason=${encodeURIComponent(reason)}`);
+    if (parentNum) {
+        setTimeout(() => {
+            if (confirm(`${name} chya parent la SMS pathavaycha ka?\n+91${parentNum}`)) {
+                sendSMS(name, parentNum, null);
+            }
+        }, 700);
+    }
+}
+</script>
+</body>
+</html>
