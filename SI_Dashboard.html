@@ -3,36 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TCF In-Charge Dashboard</title>
+    <title>XTCF In-Charge Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
-/* ══ ONLY HEADER CHANGES ══ */
-.header {
-    background: linear-gradient(135deg, var(--danger) 0%, var(--danger-dark) 100%);
-    color: white; 
-    padding: 14px 15px;
-    display: flex; 
-    align-items: center; 
-    justify-content: space-between; /* Isse teeno elements (back, title, empty div) barabar align honge */
-    position: sticky; 
-    top: 0; 
-    z-index: 100;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-}
 
-.header-title { 
-    font-size: 18px; 
-    font-weight: 800; 
-    flex: 1;                /* Title ko bachi hui saari jagah dega */
-    text-align: center;      /* Text ko beech mein layega */
-}
-
-.header-back { 
-    font-size: 22px; 
-    cursor: pointer; 
-    width: 40px;            /* Width fix kar di taaki ye right side wale 40px div ke barabar rahe */
-    display: none;          /* Group select hone par JS isse block/inline kar dega */
-}
         
         :root {
             --primary: #1976D2; --primary-dark: #1565C0;
@@ -175,7 +149,7 @@
 <!-- HEADER -->
 <div class="header">
     <span class="header-back" id="back-btn" onclick="goBack()">&#8592;</span>
-    <div class="header-title" id="header-text">XTCF Deployment - Dashboard</div>
+    <div class="header-title" id="header-text">‎ ‎ XTCF Deployment - Dashboard</div>
     <div style="width:40px;"></div>
 </div>
 
