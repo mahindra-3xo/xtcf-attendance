@@ -551,7 +551,7 @@ function updateAutoDeployPanel() {
 
 function buildSMSMsg(name) {
     const today = new Date().toLocaleDateString('mr-IN', {day:'numeric', month:'long', year:'numeric'});
-    return `TCF Mahindra Nashik: ${name} aaj (${today}) duty var upasthit nahi ahe. Kripya lakshya dya. - Shift In-Charge`;
+    return `XUV TCF Mahindra Nashik: ${name} aaj (${today}) duty var upasthit nahi ahe. Kripya lakshya dya. - Shift In-Charge`;
 }
 
 // DIRECT SMS - Ek click mein seedha SMS app kholta hai
@@ -559,13 +559,13 @@ function sendSMS(name, pm, event) {
     if (event) event.stopPropagation();
     
     if (!pm || pm === "") {
-        showToast('Mobile number nahi mila!', 'info');
+        showToast('Mobile number nahi milal!', 'info');
         return;
     }
     
     let msg = buildSMSMsg(name);
     window.location.href = `sms:+91${pm}?body=${encodeURIComponent(msg)}`;
-    showToast(`SMS: ${name} chya parent la`, 'sms');
+    showToast(`SMS: ${name} Sending Message`, 'sms');
 }
 
 function openSMSModal(token, name, parentNum, event) {
