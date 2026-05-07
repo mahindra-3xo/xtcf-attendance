@@ -261,7 +261,7 @@ async function selectGroup(group) {
     showLoading();
     await loadDashboard();
     hideLoading();
-    autoRefreshTimer = setInterval(loadDashboard, 2000);
+    autoRefreshTimer = setInterval(loadDashboard, 7000);
 }
 
 function goBack() {
@@ -552,7 +552,7 @@ async function runAction(action, params) {
     try {
         await fetch(`${API_URL}?action=${action}&${params}`, { method:'POST', mode:'no-cors' });
         await loadDashboard();
-        setTimeout(async () => { await loadDashboard(); hideLoading(); }, 800);
+        setTimeout(async () => { await loadDashboard(); hideLoading(); }, 100);
     } catch(e) { alert("Connection Error!"); hideLoading(); }
 }
 
