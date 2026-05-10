@@ -12,6 +12,16 @@
             .btn-unplanned { background: #FCE4EC; color: #880E4F; border: 1px solid #F8BBD0; }
 
         
+/* 🔥 NAYA CODE: Dropdown aur Badges ka style */
+.btn-select {
+    background: #F8FAFC; color: #334155; border: 1px solid #CBD5E1;
+    padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 700;
+    cursor: pointer; outline: none; font-family: 'Inter', sans-serif;
+}
+.btn-select:focus { border-color: #94A3B8; }
+.badge-cat-p { background: #E0F7FA; color: #006064; border: 1px solid #B2EBF2; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; display: inline-block; }
+.badge-cat-u { background: #FCE4EC; color: #880E4F; border: 1px solid #F8BBD0; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; display: inline-block; }
+
         :root {
             --primary: #1976D2; --primary-dark: #1565C0;
             --danger: #E53935; --danger-dark: #C62828;
@@ -36,9 +46,6 @@
         /* CONTROL BAR */
         #control-bar {
           
-     
-   
-
         }
 
         /* SMS Batch button */
@@ -49,14 +56,10 @@
             font-size: 12px; font-weight: 800; cursor: pointer;
             font-family: 'Inter', sans-serif;
             animation: pulseBg 1.8s infinite; 
-    padding: 10px 22px;
-    margin: 10px auto;
-
-    width: fit-content;
-
-    box-shadow: 0 4px 12px rgba(0,0,0,0.18);
-
-
+            padding: 10px 22px;
+            margin: 10px auto;
+            width: fit-content;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.18);
         }
         @keyframes pulseBg { 0%,100%{background:#FF6F00;} 50%{background:#BF360C;} }
 
@@ -151,18 +154,15 @@
 
 <div id="global-loader"><div class="spinner"></div></div>
 
-<!-- HEADER -->
 <div class="header" style="display:flex; align-items:center; justify-content:center; position:relative;">
     <span class="header-back" id="back-btn" onclick="goBack()" style="position:absolute; left:10px;">&#8592;</span>
     <div class="header-title" id="header-text" style="text-align:center;">‎XTCF Deployment - Dashboard</div>
 </div>
 
-<!-- CONTROL BAR -->
 <div id="control-bar">
     <button id="sms-parent-btn" onclick="openBatchSMSModal()">Absent: <span id="absent-count">0</span> - SMS</button>
 </div>
 
-<!-- GROUP SELECTOR -->
 <div class="group-selector" id="group-screen">
     <h3>Shift Group Select Kara</h3>
     <button class="group-btn" onclick="selectGroup('A')">Group A</button>
@@ -170,10 +170,8 @@
     <button class="group-btn" onclick="selectGroup('C')">Group C</button>
 </div>
 
-<!-- DASHBOARD -->
 <div class="container" id="dashboard-screen"></div>
 
-<!-- MODALS -->
 <div class="modal-overlay" id="overlay" onclick="closeAllModals()"></div>
 
 <div class="modal-box" id="transfer-modal">
@@ -196,7 +194,6 @@
     </div>
 </div>
 
-<!-- SMS Modal for Manual SMS -->
 <div class="modal-box" id="sms-modal">
     <h4>Send SMS to Parents</h4>
     <div class="sms-number" id="sms-parent-number"></div>
@@ -207,7 +204,6 @@
     </div>
 </div>
 
-<!-- Batch SMS Modal -->
 <div class="modal-box" id="batch-sms-modal" style="max-width:380px;">
     <h4>Saglya Absent Operators chya Parents la SMS Kara!!!</h4>
     <div class="modal-sub">Khali absent operators chi list ahe. Ek-ek karun SMS pathava:</div>
@@ -221,7 +217,7 @@
 // ════════════════════════════════════════
 //  CONFIG
 // ════════════════════════════════════════
-const API_URL = "https://script.google.com/macros/s/AKfycby24kMEkdjegGYvMBW8GHTVCDSjUVR1fvEep50wyUMqPcw7o8r2nGzB0YmPtxuTl5mp/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycby24kMEkdjegGYvMBW8GHTVCDSjUVR1fvEep50wyUMqPcw7o8r2nGzB0YmPtxuTl5mp/exec"; // Update apna latest URL yahan
 const LINES   = ["Trim 1","Trim 2","Underbody","Engine MO1","Engine MO3","New Line","Trim 3","Final Line","CSC Line","D2D Line"];
 
 // ════════════════════════════════════════
@@ -232,6 +228,9 @@ let selectedToken      = "";
 let autoRefreshTimer   = null;
 let openTabs           = {};
 let globalMissingTasks = {};
+
+// 🔥 Added for Dropdown logic persistence
+let verifiedCategories = {}; 
 
 // Parent SMS
 let absentOperators    = [];
@@ -276,6 +275,7 @@ function goBack() {
     absentOperators = [];
     smsSentSet.clear();
     openTabs = {};
+    verifiedCategories = {}; // 🔥 Reset dropdown state when going back
 
     document.getElementById('group-screen').style.display      = 'flex';
     document.getElementById('dashboard-screen').style.display  = 'none';
@@ -386,6 +386,22 @@ function renderDashboard(data) {
                 ? `<button class="btn-action btn-sms" onclick="sendSMS('${op.name}','${pm}',event)">SMS</button>`
                 : "";
 
+            // 🔥 PLANNED / UNPLANNED DROPDOWN LOGIC
+            let savedCat = verifiedCategories[op.token];
+            let catUI = "";
+            
+            if (savedCat === 'Planned') {
+                catUI = `<span class="badge-cat-p">✅ Planned</span>`;
+            } else if (savedCat === 'Unplanned') {
+                catUI = `<span class="badge-cat-u">❌ Unplanned</span>`;
+            } else if (isAbsent) {
+                catUI = `<select class="btn-select" onchange="setCategoryDropdown('${op.token}', this, event)">
+                            <option value="" disabled selected>⚙Leave Type</option>
+                            <option value="Planned">Mark Planned Leave</option>
+                            <option value="Unplanned">Mark Unplanned Leave</option>
+                         </select>`;
+            }
+
             let actions = isPresent
                 ? `<div class="action-group">
                       ${op.deploymentType === 'Extra'
@@ -394,12 +410,11 @@ function renderDashboard(data) {
                       <button class="btn-action btn-transfer" onclick="openTransferModal('${op.token}','${op.name}',event)">Transfer</button>
                       <button class="btn-action btn-absent-ic" onclick="markAbsentByIC('${op.token}','${op.name}','${pm}',event)">Absent</button>
                    </div>`
-               : `<div class="action-group">
-      <button class="btn-action btn-planned" onclick="setCategory('${op.token}', 'Planned', event)">[P]</button>
-      <button class="btn-action btn-unplanned" onclick="setCategory('${op.token}', 'Unplanned', event)">[U]</button>
-      ${smsBtn}
-      <button class="btn-action btn-present" onclick="markPresent('${op.token}',event)">Mark Present</button>
-   </div>`;
+                : `<div class="action-group">
+                      ${catUI}
+                      ${smsBtn}
+                      <button class="btn-action btn-present" onclick="markPresent('${op.token}',event)">Mark Present</button>
+                   </div>`;
 
             let reasonBadge = "";
             if (isAbsent && att && att.reason) {
@@ -607,8 +622,6 @@ function markPresent(token, event) {
     runAction('icMarkPresent', `token=${token}&reason=IC Override`);
 }
 
-// BUG FIX: Removed stray 'c' character that was here causing JavaScript ReferenceError
-
 function markAbsentByIC(token, name, parentNum, event) {
     event.stopPropagation();
     let reason = prompt(`${name} Reason for Absent`, "Marked Absent");
@@ -622,13 +635,24 @@ function markAbsentByIC(token, name, parentNum, event) {
         }, 700);
     }
 }
-    // 🔥 NAYA CODE: Send Category Update Request
-function setCategory(token, cat, event) {
+
+// 🔥 NAYA FUNCTION: CATEGORY DROPDOWN HANDLER
+function setCategoryDropdown(token, selectEl, event) {
     event.stopPropagation();
+    let cat = selectEl.value;
+    if (!cat) return;
+    
+    // Auto-refresh me state maintain karne ke liye local memory me set kiya
+    verifiedCategories[token] = cat;
+    
+    // Backend API update trigger
     runAction('updateCategory', `token=${token}&category=${cat}`);
-    // Ek chhota toast message dikhayenge taaki SI ko confirm ho jaye
-    showToast(`${cat} Marked!`, 'info');
+    showToast(`${cat} Leave Marked!`, 'info');
+    
+    // Turant UI reload
+    loadDashboard();
 }
+
 </script>
 </body>
 </html>
