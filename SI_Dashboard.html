@@ -11,16 +11,28 @@
             .btn-planned { background: #E0F7FA; color: #006064; border: 1px solid #B2EBF2; }
             .btn-unplanned { background: #FCE4EC; color: #880E4F; border: 1px solid #F8BBD0; }
 
+/* 🔥 UI FIX: Compact Mobile Dropdown & Badges */
+        .btn-select { 
+            appearance: none; -webkit-appearance: none; /* Native mobile style block karega */
+            background: #F8FAFC url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' fill='%23475569' viewBox='0 0 16 16'><path d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/></svg>") no-repeat right 6px center;
+            color: #334155; border: 1px solid #CBD5E1; 
+            padding: 7px 20px 7px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; 
+            cursor: pointer; outline: none; font-family: 'Inter', sans-serif; 
+            width: 85px; /* Fixed size taaki baki buttons push na hon */
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            text-overflow: ellipsis; white-space: nowrap; overflow: hidden;
+        }
+        .btn-select:focus { border-color: #94A3B8; }
         
-/* 🔥 NAYA CODE: Dropdown aur Badges ka style */
-.btn-select {
-    background: #F8FAFC; color: #334155; border: 1px solid #CBD5E1;
-    padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 700;
-    cursor: pointer; outline: none; font-family: 'Inter', sans-serif;
-}
-.btn-select:focus { border-color: #94A3B8; }
-.badge-cat-p { background: #E0F7FA; color: #006064; border: 1px solid #B2EBF2; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; display: inline-block; }
-.badge-cat-u { background: #FCE4EC; color: #880E4F; border: 1px solid #F8BBD0; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; display: inline-block; }
+        .badge-cat-p { background: #E0F7FA; color: #006064; border: 1px solid #B2EBF2; padding: 7px 8px; border-radius: 6px; font-size: 11px; font-weight: 800; display: inline-block; width: 85px; text-align: center; }
+        .badge-cat-u { background: #FCE4EC; color: #880E4F; border: 1px solid #F8BBD0; padding: 7px 8px; border-radius: 6px; font-size: 11px; font-weight: 800; display: inline-block; width: 85px; text-align: center; }
+
+        /* Mobile Flex Wrap Fix */
+        .operator-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #F9FAFB; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .op-info { flex: 1 1 140px; min-width: 140px; }
+        .action-group { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; justify-content: flex-end; flex: 1 1 auto; }
+        
+
 
         :root {
             --primary: #1976D2; --primary-dark: #1565C0;
@@ -387,18 +399,19 @@ function renderDashboard(data) {
                 : "";
 
             // 🔥 PLANNED / UNPLANNED DROPDOWN LOGIC
+           // 🔥 PLANNED / UNPLANNED DROPDOWN LOGIC (Compact Text)
             let savedCat = verifiedCategories[op.token];
             let catUI = "";
             
             if (savedCat === 'Planned') {
                 catUI = `<span class="badge-cat-p">✅ Planned</span>`;
             } else if (savedCat === 'Unplanned') {
-                catUI = `<span class="badge-cat-u">❌ Unplanned</span>`;
+                catUI = `<span class="badge-cat-u">❌ Unplan</span>`;
             } else if (isAbsent) {
                 catUI = `<select class="btn-select" onchange="setCategoryDropdown('${op.token}', this, event)">
-                            <option value="" disabled selected>⚙Leave Type</option>
-                            <option value="Planned">Mark Planned Leave</option>
-                            <option value="Unplanned">Mark Unplanned Leave</option>
+                            <option value="" disabled selected>⚙️ Type</option>
+                            <option value="Planned">✅ Planned</option>
+                            <option value="Unplanned">❌ Unplanned</option>
                          </select>`;
             }
 
