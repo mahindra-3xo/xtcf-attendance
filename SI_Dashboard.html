@@ -11,7 +11,7 @@
             .btn-planned { background: #E0F7FA; color: #006064; border: 1px solid #B2EBF2; }
             .btn-unplanned { background: #FCE4EC; color: #880E4F; border: 1px solid #F8BBD0; }
 
-/* 🔥 UI FIX: Compact Mobile Dropdown & Badges */
+        /* 🔥 UI FIX: Compact Mobile Dropdown & Badges */
         .btn-select { 
             appearance: none; -webkit-appearance: none; /* Native mobile style block karega */
             background: #F8FAFC url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' fill='%23475569' viewBox='0 0 16 16'><path d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/></svg>") no-repeat right 6px center;
@@ -32,7 +32,6 @@
         .op-info { flex: 1 1 140px; min-width: 140px; }
         .action-group { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; justify-content: flex-end; flex: 1 1 auto; }
         
-
 
         :root {
             --primary: #1976D2; --primary-dark: #1565C0;
@@ -138,21 +137,11 @@
 
         /* SMS Modal */
         #sms-modal .sms-preview {
-            background: #FFF8E1;
-            border: 1px solid #FFE082;
-            border-radius: 10px;
-            padding: 12px;
-            font-size: 13px;
-            line-height: 1.5;
-            margin-bottom: 14px;
-            white-space: pre-wrap;
+            background: #FFF8E1; border: 1px solid #FFE082;
+            border-radius: 10px; padding: 12px; font-size: 13px;
+            line-height: 1.5; margin-bottom: 14px; white-space: pre-wrap;
         }
-        #sms-modal .sms-number {
-            font-size: 14px;
-            font-weight: 700;
-            color: var(--success-dark);
-            margin-bottom: 10px;
-        }
+        #sms-modal .sms-number { font-size: 14px; font-weight: 700; color: var(--success-dark); margin-bottom: 10px; }
 
         /* TOAST */
         .toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); color:white; padding:11px 20px; border-radius:30px; font-size:13px; font-weight:700; box-shadow:0 6px 20px rgba(0,0,0,0.25); z-index:3000; white-space:nowrap; animation:slideUp 0.3s ease; max-width:88vw; text-align:center; }
@@ -229,7 +218,8 @@
 // ════════════════════════════════════════
 //  CONFIG
 // ════════════════════════════════════════
-const API_URL = "https://script.google.com/macros/s/AKfycby24kMEkdjegGYvMBW8GHTVCDSjUVR1fvEep50wyUMqPcw7o8r2nGzB0YmPtxuTl5mp/exec"; // Update apna latest URL yahan
+const API_URL = "https://script.google.com/macros/s/AKfycbwZJaf6dWjPLmpV7SPfGmUB2tn_LMAymY7hSonu4o6A9nP-9nUb6OsRvA5q8xuQ-sfD/exec";
+// Update apna latest URL yahan
 const LINES   = ["Trim 1","Trim 2","Underbody","Engine MO1","Engine MO3","New Line","Trim 3","Final Line","CSC Line","D2D Line"];
 
 // ════════════════════════════════════════
@@ -237,7 +227,7 @@ const LINES   = ["Trim 1","Trim 2","Underbody","Engine MO1","Engine MO3","New Li
 // ════════════════════════════════════════
 let currentGroup       = "";
 let selectedToken      = "";
-let autoRefreshTimer   = null;
+let autoRefreshTimer   = "";
 let openTabs           = {};
 let globalMissingTasks = {};
 
@@ -398,20 +388,19 @@ function renderDashboard(data) {
                 ? `<button class="btn-action btn-sms" onclick="sendSMS('${op.name}','${pm}',event)">SMS</button>`
                 : "";
 
-            // 🔥 PLANNED / UNPLANNED DROPDOWN LOGIC
-           // 🔥 PLANNED / UNPLANNED DROPDOWN LOGIC (Compact Text)
-            let savedCat = verifiedCategories[op.token];
+            // 🔥 PLANNED / UNPLANNED DROPDOWN LOGIC (Reads from Backend now!)
+            let currentCat = (att && att.category && att.category !== "Pending") ? att.category : verifiedCategories[op.token];
             let catUI = "";
             
-            if (savedCat === 'Planned') {
+            if (currentCat === 'Planned') {
                 catUI = `<span class="badge-cat-p">✅ Planned</span>`;
-            } else if (savedCat === 'Unplanned') {
+            } else if (currentCat === 'Unplanned') {
                 catUI = `<span class="badge-cat-u">❌ Unplan</span>`;
             } else if (isAbsent) {
                 catUI = `<select class="btn-select" onchange="setCategoryDropdown('${op.token}', this, event)">
                             <option value="" disabled selected>⚙️ Type</option>
                             <option value="Planned">✅ Planned</option>
-                            <option value="Unplanned">❌ Unplanned</option>
+                            <option value="Unplanned">❌ Unplan</option>
                          </select>`;
             }
 
@@ -658,12 +647,9 @@ function setCategoryDropdown(token, selectEl, event) {
     // Auto-refresh me state maintain karne ke liye local memory me set kiya
     verifiedCategories[token] = cat;
     
-    // Backend API update trigger
+    // Backend API update trigger (runAction call includes loadDashboard automatically)
     runAction('updateCategory', `token=${token}&category=${cat}`);
-    showToast(`${cat} Leave Marked!`, 'info');
-    
-    // Turant UI reload
-    loadDashboard();
+    showToast(`${cat} Syncing...`, 'info');
 }
 
 </script>
