@@ -395,8 +395,8 @@ function renderDashboard(data) {
                       <button class="btn-action btn-absent-ic" onclick="markAbsentByIC('${op.token}','${op.name}','${pm}',event)">Absent</button>
                    </div>`
                : `<div class="action-group">
-      <button class="btn-action btn-planned" onclick="setCategory('${op.token}', 'Planned', event)">[P] Planned</button>
-      <button class="btn-action btn-unplanned" onclick="setCategory('${op.token}', 'Unplanned', event)">[U] Unplanned</button>
+      <button class="btn-action btn-planned" onclick="setCategory('${op.token}', 'Planned', event)">[P]</button>
+      <button class="btn-action btn-unplanned" onclick="setCategory('${op.token}', 'Unplanned', event)">[U]</button>
       ${smsBtn}
       <button class="btn-action btn-present" onclick="markPresent('${op.token}',event)">Mark Present</button>
    </div>`;
