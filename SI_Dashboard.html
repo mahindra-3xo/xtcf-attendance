@@ -6,7 +6,12 @@
     <title>XTCF In-Charge Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
+        
+        /* 🔥 NAYA CODE: Planned & Unplanned Button Colors */
+            .btn-planned { background: #E0F7FA; color: #006064; border: 1px solid #B2EBF2; }
+            .btn-unplanned { background: #FCE4EC; color: #880E4F; border: 1px solid #F8BBD0; }
 
+        
         :root {
             --primary: #1976D2; --primary-dark: #1565C0;
             --danger: #E53935; --danger-dark: #C62828;
@@ -389,10 +394,12 @@ function renderDashboard(data) {
                       <button class="btn-action btn-transfer" onclick="openTransferModal('${op.token}','${op.name}',event)">Transfer</button>
                       <button class="btn-action btn-absent-ic" onclick="markAbsentByIC('${op.token}','${op.name}','${pm}',event)">Absent</button>
                    </div>`
-                : `<div class="action-group">
-                      ${smsBtn}
-                      <button class="btn-action btn-present" onclick="markPresent('${op.token}',event)">Mark Present</button>
-                   </div>`;
+               : `<div class="action-group">
+      <button class="btn-action btn-planned" onclick="setCategory('${op.token}', 'Planned', event)">[P] Planned</button>
+      <button class="btn-action btn-unplanned" onclick="setCategory('${op.token}', 'Unplanned', event)">[U] Unplanned</button>
+      ${smsBtn}
+      <button class="btn-action btn-present" onclick="markPresent('${op.token}',event)">Mark Present</button>
+   </div>`;
 
             let reasonBadge = "";
             if (isAbsent && att && att.reason) {
@@ -614,6 +621,13 @@ function markAbsentByIC(token, name, parentNum, event) {
             }
         }, 700);
     }
+}
+    // 🔥 NAYA CODE: Send Category Update Request
+function setCategory(token, cat, event) {
+    event.stopPropagation();
+    runAction('updateCategory', `token=${token}&category=${cat}`);
+    // Ek chhota toast message dikhayenge taaki SI ko confirm ho jaye
+    showToast(`${cat} Marked!`, 'info');
 }
 </script>
 </body>
