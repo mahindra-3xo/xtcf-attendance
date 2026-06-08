@@ -42,7 +42,6 @@
 
         .content { padding: 30px 25px; flex-grow: 1; }
         
-        /* 🔥 NAYA BLINKING ANIMATION 🔥 */
         @keyframes dangerPulse {
             0% { transform: scale(1); background-color: #fff3e0; box-shadow: 0 0 0 0 rgba(255, 87, 34, 0.4); border-color: #ffb74d; }
             50% { transform: scale(1.02); background-color: #ffebee; box-shadow: 0 0 20px 0px rgba(211, 47, 47, 0.3); border-color: #e57373; }
@@ -60,131 +59,46 @@
             animation: dangerPulse 1.2s infinite ease-in-out; 
         }
         
-        .salary-text { 
-            color: #c62828; 
-            font-size: 18px; 
-            font-weight: 800; 
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        .salary-subtext {
-            color: #555;
-            font-size: 12px;
-            font-weight: 600;
-        }
+        .salary-text { color: #c62828; font-size: 18px; font-weight: 800; display: block; margin-bottom: 5px; }
+        .salary-subtext { color: #555; font-size: 12px; font-weight: 600; }
         
         label { 
-            font-size: 13px; 
-            color: #777; 
-            font-weight: 600; 
-            margin-bottom: 8px; 
-            display: block; 
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            font-size: 13px; color: #777; font-weight: 600; margin-bottom: 8px; display: block; 
+            text-transform: uppercase; letter-spacing: 0.5px;
         }
 
         input, select { 
-            width: 100%; 
-            padding: 15px; 
-            margin-bottom: 25px; 
-            background-color: #f8f9fa;
-            border: 2px solid #e9ecef; 
-            border-radius: 12px; 
-            font-size: 16px; 
-            font-family: 'Poppins', sans-serif;
-            font-weight: 600;
-            color: #333;
-            transition: all 0.3s ease;
-            outline: none;
-            -webkit-appearance: none; /* Removes default iOS styling */
+            width: 100%; padding: 15px; margin-bottom: 25px; background-color: #f8f9fa;
+            border: 2px solid #e9ecef; border-radius: 12px; font-size: 16px; 
+            font-family: 'Poppins', sans-serif; font-weight: 600; color: #333;
+            transition: all 0.3s ease; outline: none; -webkit-appearance: none;
         }
 
         input:focus, select:focus {
-            border-color: #D32F2F;
-            background-color: #ffffff;
-            box-shadow: 0 0 0 4px rgba(211, 47, 47, 0.1);
+            border-color: #D32F2F; background-color: #ffffff; box-shadow: 0 0 0 4px rgba(211, 47, 47, 0.1);
         }
 
-        /* Standardize Buttons */
+        /* Highlight specifically for Date selector */
+        #leave-day { border: 2px solid #1976D2; background-color: #E3F2FD; color: #0D47A1; }
+
         button {
-            width: 100%; 
-            padding: 16px; 
-            border: none; 
-            border-radius: 12px; 
-            font-size: 16px; 
-            font-family: 'Poppins', sans-serif;
-            font-weight: 800; 
-            cursor: pointer; 
-            transition: transform 0.1s ease, box-shadow 0.3s ease;
-            letter-spacing: 0.5px;
+            width: 100%; padding: 16px; border: none; border-radius: 12px; font-size: 16px; 
+            font-family: 'Poppins', sans-serif; font-weight: 800; cursor: pointer; 
+            transition: transform 0.1s ease, box-shadow 0.3s ease; letter-spacing: 0.5px;
         }
 
-        button:active {
-            transform: scale(0.98);
-        }
+        button:active { transform: scale(0.98); }
 
-        .btn-absent { 
-            background: linear-gradient(135deg, #e53935 0%, #c62828 100%); 
-            color: white; 
-            box-shadow: 0 6px 15px rgba(229, 57, 53, 0.3);
-        }
+        .btn-absent { background: linear-gradient(135deg, #e53935 0%, #c62828 100%); color: white; box-shadow: 0 6px 15px rgba(229, 57, 53, 0.3); }
+        .btn-quick { background: linear-gradient(135deg, #43a047 0%, #2e7d32 100%); color: white; display: none; margin-bottom: 12px; box-shadow: 0 6px 15px rgba(67, 160, 71, 0.3); }
+        .btn-undo { background: linear-gradient(135deg, #fb8c00 0%, #ef6c00 100%); color: white; display: none; margin-bottom: 10px; box-shadow: 0 6px 15px rgba(251, 140, 0, 0.3); }
 
-        .btn-quick { 
-            background: linear-gradient(135deg, #43a047 0%, #2e7d32 100%); 
-            color: white; 
-            display: none; 
-            margin-bottom: 12px;
-            box-shadow: 0 6px 15px rgba(67, 160, 71, 0.3);
-        }
+        .divider { height: 2px; background-color: #f0f2f5; margin: 30px 0; border-radius: 2px; }
+        .btn-withdraw { background: transparent; color: #546e7a; border: 2px solid #cfd8dc; padding: 14px; }
+        .btn-withdraw:active { background: #eceff1; }
 
-        .btn-undo { 
-            background: linear-gradient(135deg, #fb8c00 0%, #ef6c00 100%); 
-            color: white; 
-            display: none; 
-            margin-bottom: 10px;
-            box-shadow: 0 6px 15px rgba(251, 140, 0, 0.3);
-        }
-
-        .divider {
-            height: 2px;
-            background-color: #f0f2f5;
-            margin: 30px 0;
-            border-radius: 2px;
-        }
-
-        .btn-withdraw { 
-            background: transparent; 
-            color: #546e7a; 
-            border: 2px solid #cfd8dc;
-            padding: 14px; 
-        }
-
-        .btn-withdraw:active {
-            background: #eceff1;
-        }
-
-        #timer-msg { 
-            text-align: center; 
-            color: #D32F2F; 
-            font-weight: 800; 
-            margin-bottom: 15px; 
-            display: none; 
-            font-size: 15px; 
-            background: #ffebee;
-            padding: 10px;
-            border-radius: 8px;
-        }
-
-        #status-msg { 
-            text-align: center; 
-            margin-top: 20px; 
-            font-size: 14px; 
-            font-weight: 600;
-            padding: 12px; 
-            border-radius: 8px; 
-            display: none; 
-        }
+        #timer-msg { text-align: center; color: #D32F2F; font-weight: 800; margin-bottom: 15px; display: none; font-size: 15px; background: #ffebee; padding: 10px; border-radius: 8px; }
+        #status-msg { text-align: center; margin-top: 20px; font-size: 14px; font-weight: 600; padding: 12px; border-radius: 8px; display: none; }
     </style>
 </head>
 <body>
@@ -193,18 +107,23 @@
     <div class="header">XUV TCF Attendance</div>
     <div class="content">
         <div id="loss-indicator" class="salary-box">
-            <span class="salary-text">⚠️ TODAY'S LOSS: <br> ₹775<br>(Food+Tea+Breakfast)</span>
-           
+            <span class="salary-text">⚠️ ATTENTION: <br> ₹775 Loss/Day<br>(Food+Tea+Breakfast)</span>
         </div>
 
         <label for="token">Token Number</label>
         <input type="text" id="token" placeholder="e.g. T101" autocomplete="off">
 
         <div id="form-controls">
+            <!-- 🔥 NAYA: DATE SELECTOR -->
+            <label for="leave-day">Kadhi Chi Chhutti Pahije? (Select Date)</label>
+            <select id="leave-day">
+                <!-- Javascript isko dynamically bharega -->
+            </select>
+
             <label for="reason">Reason for Leave</label>
             <select id="reason">
-                <option value="Sick Leave ">Sick Leave </option>
-                <option value="Personal Leave ">Personal Leave </option>
+                <option value="Sick Leave">Sick Leave</option>
+                <option value="Personal Leave">Personal Leave</option>
                 <option value="Emergency">Emergency!</option>
             </select>
 
@@ -224,10 +143,27 @@
 </div>
 
 <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbwrdls8V153QJHOJedOTRx7GtkBJ-lR0BQpyIgX6JNj8ifbaOOg_c9NAgondFUNJohH/exec"; 
+    // TERA API URL YAHAN DAALNA
+    const API_URL = "https://script.google.com/macros/s/AKfycbwu5-4QCVI8EWdhyN9EAcn1s3UUAjZw9Zkg88g9ZaQHGICfEx7ZuSK14ic37sopeAJn/exec"; 
     
     let countdown;
     let secondsLeft = 30;
+
+    // 🔥 NAYA: AUTO DATE GENERATOR
+    window.onload = function() {
+        const select = document.getElementById('leave-day');
+        const labels = ["Aaj (Today)", "Kal (Tomorrow)", "Parso (Day After)"];
+        
+        for(let i = 0; i < 3; i++) {
+            let d = new Date();
+            d.setDate(d.getDate() + i);
+            let dateStr = d.toLocaleDateString('en-IN', {day:'2-digit', month:'short'});
+            let option = document.createElement("option");
+            option.value = i; // 0=Day1, 1=Day2, 2=Day3
+            option.text = `${labels[i]} - ${dateStr}`;
+            select.appendChild(option);
+        }
+    };
 
     function startUndoTimer() {
         let token = document.getElementById('token').value.trim();
@@ -278,6 +214,8 @@
     function submitAction(actionType) {
         let token = document.getElementById('token').value.trim();
         let reason = document.getElementById('reason').value;
+        let dayOffset = document.getElementById('leave-day').value; // NAYA: Day value le raha hai (0, 1, 2)
+
         let statusBox = document.getElementById('status-msg');
 
         statusBox.style.display = "block";
@@ -289,6 +227,7 @@
         formData.append('action', actionType);
         formData.append('token', token);
         formData.append('reason', reason);
+        formData.append('dayOffset', dayOffset); // NAYA: Backend ko bata raha hai kaunse din ki sheet mein dalna hai
 
         fetch(API_URL, { method: 'POST', body: formData })
         .then(res => res.text())
