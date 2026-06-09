@@ -241,7 +241,7 @@
 // ════════════════════════════════════════
 //  CONFIG & STATE
 // ════════════════════════════════════════
-const API_URL = "https://script.google.com/macros/s/AKfycbwu5-4QCVI8EWdhyN9EAcn1s3UUAjZw9Zkg88g9ZaQHGICfEx7ZuSK14ic37sopeAJn/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbyNTvUn-5nngyiX01lsdOeRXMlgyWeXQyo6GOamOU_nF18Z4Ob4avVfdOoWcvvbhygB/exec";
 const LINES   = ["Trim 1","Trim 2","Underbody","Engine MO1","Engine MO3","New Line","Trim 3","Final Line","CSC Line","D2D Line"];
 
 let currentGroup       = "";
@@ -658,7 +658,10 @@ function closeAllModals() {
 async function runAction(action, params) {
     showLoading();
     try {
-        await fetch(`${API_URL}?action=${action}&${params}`, { method:'POST', mode:'no-cors' });
+        // 🔥 UPDATE: Yahan '&dayOffset=${currentDayOffset}' add kiya hai
+        // Ab backend ko pata chalega ki officer 'Tomorrow (1)' pe hai ya 'Day After (2)' pe
+        await fetch(`${API_URL}?action=${action}&${params}&dayOffset=${currentDayOffset}`, { method:'POST', mode:'no-cors' });
+        
         await loadDashboard();
         setTimeout(async () => { await loadDashboard(); hideLoading(); }, 100);
     } catch(e) { alert("Connection Error!"); hideLoading(); }
