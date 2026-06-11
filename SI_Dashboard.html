@@ -377,7 +377,7 @@ async function loadDashboard() {
         const data = await res.json();
         
         let dateLabel = data.dashboardDate ? data.dashboardDate : 'Live';
-        document.getElementById('header-text').innerText = `Group ${currentGroup} (${dateLabel})`;
+        document.getElementById('header-text').innerText = `Group ${currentGroup}`;
         
         renderDashboard(data);
         updateSMSPanel(data);
