@@ -130,7 +130,7 @@
       { id: 1, name: "Bumper Collision Fault", faultCode: "Bumper Fault", faultMessage: "BUMPER FAULT - RGV STOPPED", description: "Obstacle collided with horizontal safety bumper. Clear hazard, trigger reset, resume auto.", instructions: "Tap Bumper to remove physical obstacle, tap Reset, then tap Start." },
       { id: 2, name: "Emergency Stop Activated", faultCode: "Emergency Pressed", faultMessage: "E-STOP FAULT - SECURITY BREAKDOWN", description: "Operator activated physical red E-Stop button. Release locked switch, perform reset.", instructions: "Tap red E-Stop to release, tap Reset, tap Start." },
       { id: 3, name: "Loss of Auto-Mode Sync", faultCode: "Loss of Auto-Mode Sync", faultMessage: "MANUAL SYNC FAULT - AUTO LOST", description: "Vehicle drifted out of speed track sync due to Manual override.", instructions: "Tap Mode Selector to AUTO, tap Reset, tap Start." },
-      { id: 4, name: "Battery Cell Overheating", faultCode: "Low Battery Cell Voltage", faultMessage: "BATTERY VOLTAGE TEMPERATURE FAULT", description: "High heat triggered shutdown. Open cabinet ventilation slots to cool.", instructions: "Check actual battery volatge range 48v to 50v & confirm, also tap Reset, tap Start." },
+      { id: 4, name: "Battery Cell Overheating", faultCode: "Low Battery Cell Voltage", faultMessage: "BATTERY VOLTAGE TEMPERATURE FAULT", description: "High heat triggered shutdown. Open cabinet ventilation slots to cool.", instructions: "Check actual battery volatge Below Battery Box Provided click on it & check range 48v to 50v & confirm, also tap Reset, tap Start." },
       { id: 5, name: "Double Critical Incident", faultCode: "RGV in Fault", faultMessage: "CRITICAL DOUBLE COLLISION TRIP", description: "Collision detected & Panic stop pressed simultaneously!", instructions: "Clear bumper obstacle AND release E-stop (any order), then reset and engage auto start." },
       { id: 6, name: "Position Sync Matching Fault", faultCode: "Sync Error", faultMessage: "SYNC MATCHING LOST", description: "RGV position encoder drifted. HMI shows an out-of-range sync value. Jog the RGV back into the safe 0-100 zone using the joystick.", instructions: "Flip Mode Selector to MAN, use Top Joystick (FWD/REV) to move value to 0-100 zone. Then flip back to AUTO, tap Reset, tap Start." }
     ];
@@ -183,7 +183,7 @@
               
               {/* HMI Screen */}
               <div onClick={onTapHmi} className="bg-slate-900 h-24 rounded border-4 border-slate-700 p-1.5 cursor-pointer overflow-hidden flex flex-col">
-                <div className="text-[7px] text-slate-400 font-mono mb-1">RGV INTELLI-SYSTEM</div>
+                <div className="text-[7px] text-slate-400 font-mono mb-1">RGV HMI</div>
                 
                 {isFault && level === 6 ? (
                   <div className="bg-orange-950/90 border border-orange-500 flex-1 rounded flex flex-col items-center justify-center text-center">
