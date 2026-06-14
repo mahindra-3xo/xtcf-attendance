@@ -79,7 +79,7 @@
 </div>
 
 <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbzmfzJxjjVjq4bknFTTyLV79B4v6OlMwVXMV_WO9QVPo_18ndmvmnJ2pjmJu21Bx50/exec"; 
+    const API_URL = "https://script.google.com/macros/s/AKfycbxQpiIK8Fpk91YXXJB0p7-b_bRUbovclUp4dMFEwA0ErI4hY_XyKms7pmm_bhY_q_zC/exec"; 
     let countdown, secondsLeft = 30;
 
     function getGroupShift(group, dateObj) {
@@ -105,19 +105,11 @@
         
         let currentShiftOfToday = getGroupShift(group, now);
         
-        let factoryDate = new Date(now);
-        if (totalMin < 420) {
-            factoryDate.setDate(factoryDate.getDate() - 1); 
-        }
-
+        // 🔥 Pure Global Date logic 
         let shiftEnded = false;
-        if (currentShiftOfToday === "S1") {
-            if (totalMin >= 930 || totalMin < 420) shiftEnded = true; 
-        } else if (currentShiftOfToday === "S2") {
-            if (totalMin < 420) shiftEnded = true;
-        } else if (currentShiftOfToday === "S3") {
-            shiftEnded = false; 
-        }
+        if (currentShiftOfToday === "S1" && totalMin >= 930) shiftEnded = true; 
+        if (currentShiftOfToday === "S2") shiftEnded = false; // Ends naturally at midnight
+        if (currentShiftOfToday === "S3" && totalMin >= 420) shiftEnded = true; // S3 ends at 7 AM
         
         let optionsAdded = 0;
         
@@ -125,15 +117,12 @@
             if (offset === 0 && shiftEnded) continue; 
             if (optionsAdded >= 3) break; 
             
-            let d = new Date(factoryDate);
+            let d = new Date(now);
             d.setDate(d.getDate() + offset);
             
-            // 🔥 NAYA: "Day Name" Logic added here!
             let dayDate = d.toLocaleDateString('en-IN', {day:'2-digit'});
             let monthName = d.toLocaleDateString('en-IN', {month:'short'});
-            let dayName = d.toLocaleDateString('en-IN', {weekday:'short'}); // "Sun", "Mon", "Tue"
-            
-            // Format will look like: "14 Jun (Sun)"
+            let dayName = d.toLocaleDateString('en-IN', {weekday:'short'});
             let dateStr = `${dayDate} ${monthName} (${dayName})`;
             
             let option = document.createElement("option");
@@ -222,9 +211,9 @@
         .then(res => res.text())
         .then(data => {
             if(data.includes("Blocked") || data.includes("Error") || data.includes("Update")) {
-                alert("⚠️ ATTENTION!\\n\\n" + data);
+                alert("⚠️ ATTENTION!\n\n" + data);
             } else {
-                alert("✅ SUCCESS!\\n\\n" + data);
+                alert("✅ SUCCESS!\n\n" + data);
             }
             resetUI();
             statusBox.style.display = "none";
