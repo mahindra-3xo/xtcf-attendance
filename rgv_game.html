@@ -26,6 +26,21 @@
     ::-webkit-scrollbar-track { background: #0f172a; }
     ::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
     ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
+    .hazard-stripes {
+      background: repeating-linear-gradient(-45deg, #fbbf24, #fbbf24 18px, #1e293b 18px, #1e293b 36px);
+    }
+    .hmi-grid {
+      background-image: 
+        linear-gradient(to right, rgba(0,255,100,0.05) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0,255,100,0.05) 1px, transparent 1px);
+      background-size: 15px 15px;
+    }
+    .metal-reflection {
+      background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 30%, rgba(0,0,0,0) 50%, rgba(255,255,255,0.03) 70%, rgba(255,255,255,0.08) 100%);
+    }
+    .led-glow-red { box-shadow: 0 0 15px rgba(239,68,68,0.7), 0 0 30px rgba(239,68,68,0.4); }
+    .led-glow-green { box-shadow: 0 0 20px rgba(74,222,128,0.8), 0 0 40px rgba(74,222,128,0.5); }
   </style>
 
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -132,33 +147,55 @@
       { id: 3, name: "Loss of Auto-Mode Sync", faultCode: "Loss of Auto-Mode Sync", faultMessage: "MANUAL SYNC FAULT - AUTO LOST", description: "Vehicle drifted out of speed track sync due to Manual override.", instructions: "Tap Mode Selector to AUTO, tap Reset, tap Start." },
       { id: 4, name: "Battery Cell Overheating", faultCode: "Low Battery Cell Voltage", faultMessage: "BATTERY VOLTAGE TEMPERATURE FAULT", description: "High heat triggered shutdown. Open cabinet ventilation slots to cool.", instructions: "Check actual battery volatge Below Battery Box Provided click on it & check range 48v to 50v & confirm, also tap Reset, tap Start." },
       { id: 5, name: "Double Critical Incident", faultCode: "RGV in Fault", faultMessage: "CRITICAL DOUBLE COLLISION TRIP", description: "Collision detected & Panic stop pressed simultaneously!", instructions: "Clear bumper obstacle AND release E-stop (any order), then reset and engage auto start." },
-      { id: 6, name: "Position Sync Matching Fault", faultCode: "Sync Error", faultMessage: "SYNC MATCHING LOST", description: "RGV position encoder drifted. HMI shows an out-of-range sync value. Jog the RGV back into the safe 0-100 zone using the joystick.", instructions: "Flip Mode Selector to MAN, use Top Joystick (FWD/REV) to move value to 0-100 zone. Then flip back to AUTO, tap Reset, tap Start." }
+      { id: 6, name: "Position Sync Matching Fault", faultCode: "Sync Error", faultMessage: "SYNC MATCHING LOST", description: "RGV position encoder drifted. HMI shows an out-of-range sync value. Jog the RGV back into the safe 0-100 zone using the joystick.", instructions: "Flip Mode Selector to MAN, use Top Joystick (FWD/REV) to move value to 0-100 zone. Then flip back to AUTO, tap Reset, tap Start." },
+      { id: 7, name: "Lift Drive Decking Fault", faultCode: "Drive Error", faultMessage: "LIFT DRIVE STUCK AT 50%", description: "Engine decking failed. The engine lift is stuck at 50% due to a drive fault overload.", instructions: "Tap the specific yellow 'Drive Fault Reset' button to clear the drive error, then tap Auto Start to fully deck the engine to 100%." }
     ];
 
+    const YellowPlaque = ({ text, className }) => (
+      <div className={`bg-[#eab308] border border-orange-500/80 p-1 rounded-sm shadow-inner w-full leading-tight select-none ${className}`}>
+        <p className="text-[6px] font-extrabold text-slate-950 whitespace-pre-wrap font-sans uppercase tracking-tight">{text}</p>
+      </div>
+    );
+
     // --- RgvMachine Component ---
-    const RgvMachine = ({ currentStatus, estopPressed, isAutoMode, batteryOverheat, activeFaultCode, obstaclesCleared, onTapBumper, onTapEstop, onTapReset, onTapStart, onTapSelector, onTapHmi, onTapBeacon, onTapLeftPanel, onJoystick, syncValue, level, vibrating }) => {
+    const RgvMachine = ({ currentStatus, estopPressed, isAutoMode, batteryOverheat, activeFaultCode, obstaclesCleared, onTapBumper, onTapEstop, onTapReset, onTapStart, onTapSelector, onTapHmi, onTapBeacon, onTapLeftPanel, onJoystick, onDriveFaultReset, syncValue, engineLiftPercent, level, vibrating }) => {
       const isFault = currentStatus === RgvState.FAULT;
       const isRunning = currentStatus === RgvState.RUNNING;
 
       return (
-        <motion.div className={`relative w-full max-w-sm mx-auto bg-slate-200 rounded-lg border-4 border-slate-400 shadow-2xl p-4 pt-8 ${vibrating ? 'animate-shake' : ''}`}>
+        <motion.div className={`relative w-full max-w-sm mx-auto p-4 pt-8 ${vibrating ? 'animate-shake' : ''}`}>
           
+          {/* Main RGV Panel Background - Placed at z-20 to sandwich the engine */}
+          <div className="absolute inset-0 bg-slate-200 rounded-lg border-4 border-slate-400 shadow-2xl z-20 pointer-events-none"></div>
+
+          {/* ENGINE DECKING VISUAL (Z-Index 10: Behind Panel Background, but overlapping external elements) */}
+          {level === 7 && (
+            <motion.div
+                initial={{ y: 300, opacity: 0 }}
+                animate={{ y: engineLiftPercent === 100 ? -200 : engineLiftPercent === 50 ? -40 : 300, opacity: 1 }}
+                transition={{ type: "spring", stiffness: 45, damping: 15 }}
+                className="absolute left-[50%] -translate-x-1/2 w-[320px] z-10 pointer-events-none flex justify-center"
+            >
+               <img src="https://i.ibb.co/z1KtGxP/toppng-com-car-engine-detailed-png-800x803.png" alt="mHawk Engine" className="w-full object-contain drop-shadow-[0_15px_15px_rgba(0,0,0,0.6)]" />
+            </motion.div>
+          )}
+
           {/* Top Panel & Beacons */}
-          <div onClick={onTapBeacon} className="absolute -top-6 left-[15%] w-8 h-10 bg-red-900 rounded-t-md cursor-pointer flex justify-center items-end pb-1 border-b-4 border-slate-500">
+          <div onClick={onTapBeacon} className="absolute -top-6 left-[15%] w-8 h-10 bg-red-900 rounded-t-md cursor-pointer flex justify-center items-end pb-1 border-b-4 border-slate-500 z-30">
             <div className={`w-6 h-8 rounded-sm ${isFault ? 'bg-red-500 shadow-[0_0_15px_rgba(239,68,68,1)] animate-pulse' : 'bg-red-950'}`} />
           </div>
 
-          {/* NEW JOYSTICK COMPONENT (Level 6 Sync Matching) */}
-          <div className="absolute -top-8 left-[45%] w-12 h-[34px] bg-slate-300 rounded-t-md border-x-4 border-t-4 border-slate-500 flex flex-col items-center justify-between p-1 z-10 shadow-inner">
+          {/* JOYSTICK COMPONENT */}
+          <div className="absolute -top-8 left-[45%] w-12 h-[34px] bg-slate-300 rounded-t-md border-x-4 border-t-4 border-slate-500 flex flex-col items-center justify-between p-1 z-30 shadow-inner">
              <div onClick={() => onJoystick('FWD')} className="w-8 h-3.5 bg-zinc-900 rounded-[2px] text-[4.5px] font-bold text-white flex items-center justify-center cursor-pointer active:bg-zinc-600 select-none shadow-md border border-black hover:bg-zinc-700 leading-none">▲ FWD</div>
              <div onClick={() => onJoystick('REV')} className="w-8 h-3.5 bg-zinc-900 rounded-[2px] text-[4.5px] font-bold text-white flex items-center justify-center cursor-pointer active:bg-zinc-600 select-none shadow-md border border-black hover:bg-zinc-700 leading-none">▼ REV</div>
           </div>
 
-          <div onClick={onTapBeacon} className="absolute -top-6 right-[15%] w-8 h-10 bg-green-900 rounded-t-md cursor-pointer flex justify-center items-end pb-1 border-b-4 border-slate-500">
+          <div onClick={onTapBeacon} className="absolute -top-6 right-[15%] w-8 h-10 bg-green-900 rounded-t-md cursor-pointer flex justify-center items-end pb-1 border-b-4 border-slate-500 z-30">
             <div className={`w-6 h-8 rounded-sm ${isRunning ? 'bg-green-500 shadow-[0_0_15px_rgba(34,197,94,1)]' : 'bg-green-950'}`} />
           </div>
 
-          <div className="flex gap-2 h-[450px]">
+          <div className="flex gap-2 h-[450px] relative z-30">
             {/* Left Door */}
             <div className="flex-1 bg-slate-300 border-2 border-slate-400 rounded p-2 flex flex-col gap-3 shadow-inner">
               <div className="bg-slate-100 border border-slate-400 text-center py-1 text-[10px] font-bold text-slate-700 shadow-sm">-AGV+CCP2</div>
@@ -173,8 +210,13 @@
               <div className="bg-amber-200/80 p-2 border border-amber-400 rounded h-16 opacity-80" />
               <div className="bg-amber-200/80 p-2 border border-amber-400 rounded h-12 opacity-80" />
               <div className="bg-amber-200/80 p-2 border border-amber-400 rounded h-12 opacity-80" />
-              <div onClick={onTapLeftPanel} className={`mt-auto bg-slate-800 h-16 rounded border-2 border-slate-900 flex flex-col justify-evenly p-1 cursor-pointer transition-colors ${batteryOverheat ? 'bg-red-950 border-red-500' : ''}`}>
-                {[1,2,3,4].map(i => <div key={i} className="h-1 w-full bg-black/50 rounded-full" />)}
+              
+              {/* Battery Overheat Compartment Update */}
+              <div onClick={onTapLeftPanel} className={`mt-auto bg-slate-800 h-16 rounded border-2 border-slate-900 flex flex-col justify-evenly p-1 cursor-pointer transition-colors relative overflow-hidden ${batteryOverheat ? 'bg-red-950 border-red-500 shadow-[0_0_25px_rgba(239,68,68,0.9)] animate-pulse' : ''}`}>
+                <span className="absolute top-0 right-1 text-[5px] font-bold text-zinc-400 uppercase tracking-widest">Battery Section</span>
+                <div className="mt-2.5 flex flex-col gap-1 w-full px-1">
+                   {[1,2,3,4].map(i => <div key={i} className="h-1 w-full bg-black/50 rounded-full" />)}
+                </div>
               </div>
             </div>
 
@@ -190,6 +232,11 @@
                     <span className="text-orange-500 text-[10px] font-bold animate-pulse">SYNC LOST</span>
                     <span className={`text-[12px] font-mono font-bold ${syncValue >= 0 && syncValue <= 100 ? 'text-green-400' : 'text-orange-300'}`}>POS: {syncValue}</span>
                     <span className="text-orange-400/70 text-[5px] mt-0.5">TARGET: 0 TO 100</span>
+                  </div>
+                ) : isFault && level === 7 ? (
+                  <div className="bg-red-950/80 border border-red-500 flex-1 rounded flex flex-col items-center justify-center text-center">
+                    <span className="text-red-500 text-[10px] font-bold">⚠️ LIFT DRIVE ERR</span>
+                    <span className="text-red-400 text-[6px] mt-1">ENGINE DECK STUCK: 50%</span>
                   </div>
                 ) : isFault ? (
                   <div className="bg-red-950/80 border border-red-500 flex-1 rounded flex flex-col items-center justify-center text-center">
@@ -211,7 +258,15 @@
                     <div className={`w-10 h-10 rounded-full border-b-4 border-r-2 border-red-900 transition-all ${estopPressed ? 'bg-red-700 shadow-inner scale-90 translate-y-1' : 'bg-red-600 shadow-lg'}`} />
                   </motion.div>
                 </div>
+                
                 <div className="flex w-full justify-around mt-2">
+                   {/* NEW DRIVE FAULT RESET BUTTON ALIGNED WITH OTHERS (LEVEL 7 ONLY) */}
+                   {level === 7 && (
+                     <div className="flex flex-col items-center">
+                        <motion.button whileTap={{ scale: 0.8 }} onClick={onDriveFaultReset} className="w-6 h-6 bg-yellow-400 rounded-full border-b-2 border-yellow-600 shadow-md" />
+                        <span className="text-[6px] font-bold text-slate-600 mt-1">DRV RST</span>
+                     </div>
+                   )}
                    <div className="flex flex-col items-center">
                       <motion.button whileTap={{ scale: 0.8 }} onClick={onTapReset} className="w-6 h-6 bg-blue-500 rounded-full border-b-2 border-blue-700 shadow-md" />
                       <span className="text-[6px] font-bold text-slate-600 mt-1">RESET</span>
@@ -221,6 +276,7 @@
                       <span className="text-[6px] font-bold text-slate-600 mt-1">START</span>
                    </div>
                 </div>
+
                 <div className="flex flex-col items-center w-full mt-2">
                   <span className="text-[6px] font-bold text-slate-700 mb-1">MODE SELECT</span>
                   <div onClick={onTapSelector} className="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center cursor-pointer border-2 border-slate-600 relative">
@@ -236,7 +292,7 @@
           </div>
 
           {/* Bottom Bumper */}
-          <motion.div whileTap={{ scale: 0.98 }} onClick={onTapBumper} style={{ backgroundImage: 'repeating-linear-gradient(45deg, #fbbf24, #fbbf24 15px, #1e293b 15px, #1e293b 30px)' }} className={`w-[105%] h-10 -ml-[2.5%] mt-4 rounded border-2 cursor-pointer shadow-lg relative flex items-center justify-center transition-all ${!obstaclesCleared ? 'border-red-500 shadow-[0_0_20px_rgba(239,68,68,0.5)]' : 'border-slate-800'}`}>
+          <motion.div whileTap={{ scale: 0.98 }} onClick={onTapBumper} style={{ backgroundImage: 'repeating-linear-gradient(45deg, #fbbf24, #fbbf24 15px, #1e293b 15px, #1e293b 30px)' }} className={`w-[105%] h-10 -ml-[2.5%] mt-4 rounded border-2 cursor-pointer shadow-lg relative flex items-center justify-center transition-all z-30 ${!obstaclesCleared ? 'border-red-500 shadow-[0_0_20px_rgba(239,68,68,0.5)]' : 'border-slate-800'}`}>
             <div className="bg-slate-900/80 px-2 py-0.5 rounded text-[8px] font-bold text-yellow-400 backdrop-blur-sm">BUMPER SENSOR</div>
             {!obstaclesCleared && <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-red-600 text-white text-[10px] px-2 rounded-full font-bold animate-bounce shadow-md">OBSTACLE</div>}
           </motion.div>
@@ -268,8 +324,10 @@
       const countdownTimerRef = useRef(null);
       const [vibrationShake, setVibrationShake] = useState(false);
       
-      // Sync Matching state for Level 6
+      // Sync Matching & Engine states for Level 6 & 7
       const [syncValue, setSyncValue] = useState(50);
+      const [engineLiftPercent, setEngineLiftPercent] = useState(0);
+      const [driveFaultResetDone, setDriveFaultResetDone] = useState(false);
 
       const currentLevel = LEVELS[currentLevelIdx] || LEVELS[0];
 
@@ -314,7 +372,11 @@
         setRgvStatus(RgvState.RUNNING);
         setObstaclesCleared(true); setEstopPressed(false); setIsAutoMode(true);
         setBatteryOverheat(false); setCoolingActive(false); setActiveFault(null);
+        
         setSyncValue(50); // Reset Sync Value baseline
+        setEngineLiftPercent(0);
+        setDriveFaultResetDone(false);
+
         playSound.stopAlarm();
         setGameState("PRE_FAULT");
         addLog(`INIT LEVEL ${index + 1}: loading parameters...`);
@@ -341,6 +403,10 @@
            setSyncValue(randomOutOfRange);
            setIsAutoMode(true); 
            addLog(`CRITICAL: Position Sync lost. Encoder reading: ${randomOutOfRange}.`);
+        }
+        else if (current.id === 7) {
+           setEngineLiftPercent(50);
+           addLog(`CRITICAL: Lift Drive overload. Engine deck stuck at 50%.`);
         }
 
         setActiveFault(current);
@@ -374,6 +440,16 @@
              }
              return newVal;
          });
+      };
+
+      const handleDriveFaultReset = () => {
+         if (soundEnabled) playSound.playClick();
+         if (gameState !== "FAULT_ACTIVE" || currentLevel.id !== 7) return;
+
+         setDriveFaultResetDone(true);
+         setRgvStatus(RgvState.AUTO_START_REQUIRED);
+         setFeedback({ text: "Drive Fault Cleared. Tap START to finish decking.", type: "success" });
+         addLog("RECOVERY: Drive Fault Reset engaged. System ready for decking.");
       };
 
       const handleTouchBumper = () => {
@@ -440,6 +516,7 @@
         if (gameState !== "FAULT_ACTIVE") return;
         if (rgvStatus === RgvState.FAULT) {
            if (currentLevel.id === 6) handleIncorrect("Fault still active! Jog to 0-100 zone and switch to AUTO first.");
+           else if (currentLevel.id === 7) handleIncorrect("Fault still active! Press yellow 'DRV RST' button first.");
            else handleIncorrect("Fault still active! Check physical elements first.");
            return;
         }
@@ -457,14 +534,25 @@
           playSound.stopAlarm();
           if (soundEnabled) playSound.playSuccessChime();
           setScore(prev => prev + 100);
+
+          if (currentLevel.id === 7) {
+              setEngineLiftPercent(100);
+          }
+
           setRgvStatus(RgvState.RUNNING);
           setGameState("LEVEL_COMPLETED");
           setFeedback({ text: "RGV RUNNING. Success!", type: "success" });
-        } else handleIncorrect("System locked. Complete previous steps.");
+        } else {
+            if (currentLevel.id === 7 && rgvStatus === RgvState.FAULT) {
+                handleIncorrect("Fault active! Press the yellow 'DRV RST' button first.");
+            } else {
+                handleIncorrect("System locked. Complete previous steps.");
+            }
+        }
       };
 
       return (
-        <div className="min-h-screen pb-6 flex flex-col relative">
+        <div className="min-h-screen pb-6 flex flex-col relative overflow-hidden">
           <div className={`fixed inset-0 pointer-events-none z-50 transition-all ${vibrationShake ? "bg-red-500/10" : ""}`} />
           
           <header className="bg-zinc-900 border-b border-zinc-800 py-3 px-4 shadow-sm sticky top-0 z-30">
@@ -550,13 +638,13 @@
 
             {(gameState === "FAULT_ACTIVE" || gameState === "LEVEL_COMPLETED") && (
               <div className="flex flex-col gap-4">
-                <div className="bg-zinc-900 rounded-xl p-4 border border-zinc-800">
+                <div className="bg-zinc-900 rounded-xl p-4 border border-zinc-800 relative z-0">
                   <div className="flex justify-between"><span className="text-[9px] bg-zinc-800 px-2 rounded">Target {currentLevelIdx + 1}</span><span className="text-xs text-zinc-500">{currentLevel.faultCode}</span></div>
                   <h3 className="text-sm font-bold mt-2">{currentLevel.name}</h3>
                   <div className="bg-zinc-950 p-2.5 rounded-lg mt-2 text-[11px] text-zinc-300 flex gap-2"><Icon path={icons.HelpCircle} className="w-4 h-4 text-zinc-500 shrink-0"/>{currentLevel.instructions}</div>
                 </div>
 
-                <div className="relative mt-2">
+                <div className="relative mt-2 z-20">
                   <RgvMachine 
                     currentStatus={rgvStatus} 
                     estopPressed={estopPressed} 
@@ -573,7 +661,9 @@
                     onTapBeacon={()=>{}} 
                     onTapLeftPanel={handleTouchVents} 
                     onJoystick={handleJoystick}
+                    onDriveFaultReset={handleDriveFaultReset}
                     syncValue={syncValue}
+                    engineLiftPercent={engineLiftPercent}
                     level={currentLevel.id}
                     vibrating={gameState === "FAULT_ACTIVE"} 
                   />
@@ -607,7 +697,7 @@
           {/* FOOTER UPDATED */}
           <footer className="w-full max-w-md mx-auto text-center px-4 mt-6 text-[9px] text-zinc-600 font-mono tracking-wider">
             <p>©XUV TCF MAINTENANCE Game Training Portal</p>
-            <p className="mt-1 uppercase text-[8px] text-zinc-700">Made with ❤️ by Sahil Pardeshi</p>
+            <p className="mt-1 uppercase text-[8px] text-zinc-700">Made with ❤️ by Sahil M Pardeshi</p>
           </footer>
 
         </div>
