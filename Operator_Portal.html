@@ -7,98 +7,28 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; }
-        body { 
-            font-family: 'Poppins', sans-serif; 
-            background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%); 
-            margin: 0; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            min-height: 100vh;
-            padding: 15px;
-        }
-        
-        .app-container { 
-            background-color: #ffffff; 
-            width: 100%; 
-            max-width: 400px; 
-            border-radius: 20px; 
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1); 
-            display: flex; 
-            flex-direction: column; 
-            overflow: hidden;
-        }
-
-        .header { 
-            background: linear-gradient(135deg, #D32F2F 0%, #b71c1c 100%); 
-            color: white; 
-            padding: 25px 20px; 
-            text-align: center; 
-            font-size: 22px; 
-            font-weight: 800;
-            letter-spacing: 1px;
-            box-shadow: 0 4px 10px rgba(211, 47, 47, 0.2);
-        }
-
+        body { font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%); margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 15px; }
+        .app-container { background-color: #ffffff; width: 100%; max-width: 400px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); display: flex; flex-direction: column; overflow: hidden; }
+        .header { background: linear-gradient(135deg, #D32F2F 0%, #b71c1c 100%); color: white; padding: 25px 20px; text-align: center; font-size: 22px; font-weight: 800; letter-spacing: 1px; box-shadow: 0 4px 10px rgba(211, 47, 47, 0.2); }
         .content { padding: 30px 25px; flex-grow: 1; }
-        
-        @keyframes dangerPulse {
-            0% { transform: scale(1); background-color: #fff3e0; box-shadow: 0 0 0 0 rgba(255, 87, 34, 0.4); border-color: #ffb74d; }
-            50% { transform: scale(1.02); background-color: #ffebee; box-shadow: 0 0 20px 0px rgba(211, 47, 47, 0.3); border-color: #e57373; }
-            100% { transform: scale(1); background-color: #fff3e0; box-shadow: 0 0 0 0 rgba(255, 87, 34, 0); border-color: #ffb74d; }
-        }
-
-        .salary-box { 
-            background: #fff3e0; 
-            border: 2px solid #ffb74d; 
-            padding: 15px; 
-            border-radius: 12px; 
-            text-align: center; 
-            margin-bottom: 25px; 
-            display: none; 
-            animation: dangerPulse 1.2s infinite ease-in-out; 
-        }
-        
+        @keyframes dangerPulse { 0% { transform: scale(1); background-color: #fff3e0; box-shadow: 0 0 0 0 rgba(255, 87, 34, 0.4); border-color: #ffb74d; } 50% { transform: scale(1.02); background-color: #ffebee; box-shadow: 0 0 20px 0px rgba(211, 47, 47, 0.3); border-color: #e57373; } 100% { transform: scale(1); background-color: #fff3e0; box-shadow: 0 0 0 0 rgba(255, 87, 34, 0); border-color: #ffb74d; } }
+        .salary-box { background: #fff3e0; border: 2px solid #ffb74d; padding: 15px; border-radius: 12px; text-align: center; margin-bottom: 25px; display: none; animation: dangerPulse 1.2s infinite ease-in-out; }
         .salary-text { color: #c62828; font-size: 18px; font-weight: 800; display: block; margin-bottom: 5px; }
-        .salary-subtext { color: #555; font-size: 12px; font-weight: 600; }
-        
-        label { 
-            font-size: 13px; color: #777; font-weight: 600; margin-bottom: 8px; display: block; 
-            text-transform: uppercase; letter-spacing: 0.5px;
-        }
-
-        input, select { 
-            width: 100%; padding: 15px; margin-bottom: 25px; background-color: #f8f9fa;
-            border: 2px solid #e9ecef; border-radius: 12px; font-size: 16px; 
-            font-family: 'Poppins', sans-serif; font-weight: 600; color: #333;
-            transition: all 0.3s ease; outline: none; -webkit-appearance: none;
-        }
-
-        input:focus, select:focus {
-            border-color: #D32F2F; background-color: #ffffff; box-shadow: 0 0 0 4px rgba(211, 47, 47, 0.1);
-        }
-
-        /* Highlight specifically for Date selector */
+        label { font-size: 13px; color: #777; font-weight: 600; margin-bottom: 8px; display: block; text-transform: uppercase; letter-spacing: 0.5px; }
+        input, select { width: 100%; padding: 15px; margin-bottom: 25px; background-color: #f8f9fa; border: 2px solid #e9ecef; border-radius: 12px; font-size: 16px; font-family: 'Poppins', sans-serif; font-weight: 600; color: #333; transition: all 0.3s ease; outline: none; -webkit-appearance: none; }
+        input:focus, select:focus { border-color: #D32F2F; background-color: #ffffff; box-shadow: 0 0 0 4px rgba(211, 47, 47, 0.1); }
+        #group-select { border: 2px solid #FF8F00; background-color: #FFF8E1; color: #E65100; font-weight: 800;}
         #leave-day { border: 2px solid #1976D2; background-color: #E3F2FD; color: #0D47A1; }
-
-        button {
-            width: 100%; padding: 16px; border: none; border-radius: 12px; font-size: 16px; 
-            font-family: 'Poppins', sans-serif; font-weight: 800; cursor: pointer; 
-            transition: transform 0.1s ease, box-shadow 0.3s ease; letter-spacing: 0.5px;
-        }
-
+        button { width: 100%; padding: 16px; border: none; border-radius: 12px; font-size: 16px; font-family: 'Poppins', sans-serif; font-weight: 800; cursor: pointer; transition: transform 0.1s ease, box-shadow 0.3s ease; letter-spacing: 0.5px; }
         button:active { transform: scale(0.98); }
-
         .btn-absent { background: linear-gradient(135deg, #e53935 0%, #c62828 100%); color: white; box-shadow: 0 6px 15px rgba(229, 57, 53, 0.3); }
         .btn-quick { background: linear-gradient(135deg, #43a047 0%, #2e7d32 100%); color: white; display: none; margin-bottom: 12px; box-shadow: 0 6px 15px rgba(67, 160, 71, 0.3); }
         .btn-undo { background: linear-gradient(135deg, #fb8c00 0%, #ef6c00 100%); color: white; display: none; margin-bottom: 10px; box-shadow: 0 6px 15px rgba(251, 140, 0, 0.3); }
-
         .divider { height: 2px; background-color: #f0f2f5; margin: 30px 0; border-radius: 2px; }
         .btn-withdraw { background: transparent; color: #546e7a; border: 2px solid #cfd8dc; padding: 14px; }
         .btn-withdraw:active { background: #eceff1; }
-
         #timer-msg { text-align: center; color: #D32F2F; font-weight: 800; margin-bottom: 15px; display: none; font-size: 15px; background: #ffebee; padding: 10px; border-radius: 8px; }
-        #status-msg { text-align: center; margin-top: 20px; font-size: 14px; font-weight: 600; padding: 12px; border-radius: 8px; display: none; }
+        #status-msg { text-align: center; margin-top: 20px; font-size: 14px; font-weight: 600; padding: 12px; border-radius: 8px; display: none; white-space: pre-line; }
     </style>
 </head>
 <body>
@@ -110,14 +40,21 @@
             <span class="salary-text">⚠️ ATTENTION: <br> ₹875 Loss/Day<br>(Food+Tea+Breakfast)</span>
         </div>
 
-        <label for="token">Token Number</label>
-        <input type="text" id="token" placeholder="e.g. 31014478" autocomplete="off">
-
         <div id="form-controls">
-            <!-- 🔥 NAYA: DATE SELECTOR -->
-            <label for="leave-day">Kadhi Chi Sutti Pahije? (Select Date)</label>
-            <select id="leave-day">
-                <!-- Javascript isko dynamically bharega -->
+            <label for="group-select">Tumcha Group Konta Ahe?</label>
+            <select id="group-select" onchange="generateDates()">
+                <option value="" disabled selected>Select Your Group...</option>
+                <option value="A">Group A</option>
+                <option value="B">Group B</option>
+                <option value="C">Group C</option>
+            </select>
+
+            <label for="token">Token Number</label>
+            <input type="text" id="token" placeholder="e.g. 31014478" autocomplete="off">
+
+            <label for="leave-day">Kadhi Chi Sutti Pahije?</label>
+            <select id="leave-day" disabled>
+                <option value="">Pehle Group Select Kara 👆</option>
             </select>
 
             <label for="reason">Reason for Leave</label>
@@ -137,35 +74,84 @@
         <div class="divider"></div>
 
         <button class="btn-withdraw" onclick="submitAction('withdraw')">WITHDRAW OLD LEAVE</button>
-        
         <div id="status-msg"></div>
     </div>
 </div>
 
 <script>
-    // TERA API URL YAHAN DAALNA
-    const API_URL = "https://script.google.com/macros/s/AKfycbwZUHMwkt8jGkBdngrlEpq4QSnoIgkhzB1L20WUfIsK6AQSYVqCXUo62tyFcEDYNz_X/exec"; 
-    
-    let countdown;
-    let secondsLeft = 30;
+    const API_URL = "https://script.google.com/macros/s/AKfycbzmfzJxjjVjq4bknFTTyLV79B4v6OlMwVXMV_WO9QVPo_18ndmvmnJ2pjmJu21Bx50/exec"; 
+    let countdown, secondsLeft = 30;
 
-    // 🔥 NAYA: AUTO DATE GENERATOR
-    window.onload = function() {
+    function getGroupShift(group, dateObj) {
+        if (!dateObj) dateObj = new Date();
+        let baseDate = new Date("2026-04-20T00:00:00+05:30");
+        let effectiveTime = dateObj.getTime() - (7 * 60 * 60 * 1000); 
+        let diffWeeks = Math.floor((effectiveTime - baseDate.getTime()) / (7 * 24 * 60 * 60 * 1000));
+        let rotation = ["S1", "S3", "S2"];
+        let groupIndex = (group === "B") ? 0 : (group === "A") ? 1 : 2;
+        return rotation[(groupIndex + diffWeeks) % 3];
+    }
+
+    function generateDates() {
+        const group = document.getElementById('group-select').value;
         const select = document.getElementById('leave-day');
-        const labels = ["आज (Today)", "उद्या (Tomorrow)", "परवा (Day After)"];
+        select.innerHTML = ""; 
+        if(!group) return; select.disabled = false;
+
+        let now = new Date();
+        let hour = now.getHours();
+        let min = now.getMinutes();
+        let totalMin = (hour * 60) + min;
         
-        for(let i = 0; i < 3; i++) {
-            let d = new Date();
-            d.setDate(d.getDate() + i);
-            let dateStr = d.toLocaleDateString('en-IN', {day:'2-digit', month:'short'});
-            let option = document.createElement("option");
-            option.value = i; // 0=Day1, 1=Day2, 2=Day3
-            option.text = `${labels[i]} - ${dateStr}`;
-            select.appendChild(option);
+        let currentShiftOfToday = getGroupShift(group, now);
+        
+        let factoryDate = new Date(now);
+        if (totalMin < 420) {
+            factoryDate.setDate(factoryDate.getDate() - 1); 
         }
-    };
+
+        let shiftEnded = false;
+        if (currentShiftOfToday === "S1") {
+            if (totalMin >= 930 || totalMin < 420) shiftEnded = true; 
+        } else if (currentShiftOfToday === "S2") {
+            if (totalMin < 420) shiftEnded = true;
+        } else if (currentShiftOfToday === "S3") {
+            shiftEnded = false; 
+        }
+        
+        let optionsAdded = 0;
+        
+        for(let offset = 0; offset <= 3; offset++) {
+            if (offset === 0 && shiftEnded) continue; 
+            if (optionsAdded >= 3) break; 
+            
+            let d = new Date(factoryDate);
+            d.setDate(d.getDate() + offset);
+            
+            // 🔥 NAYA: "Day Name" Logic added here!
+            let dayDate = d.toLocaleDateString('en-IN', {day:'2-digit'});
+            let monthName = d.toLocaleDateString('en-IN', {month:'short'});
+            let dayName = d.toLocaleDateString('en-IN', {weekday:'short'}); // "Sun", "Mon", "Tue"
+            
+            // Format will look like: "14 Jun (Sun)"
+            let dateStr = `${dayDate} ${monthName} (${dayName})`;
+            
+            let option = document.createElement("option");
+            option.value = offset; 
+            
+            if (offset === 0) option.text = `आजची ड्युटी (Current Duty) - ${dateStr}`;
+            else if (offset === 1) option.text = `पुढची ड्युटी (Next Duty) - ${dateStr}`;
+            else if (offset === 2) option.text = `त्यापुढची ड्युटी (Day After) - ${dateStr}`;
+            else if (offset === 3) option.text = `तिसरी ड्युटी (3rd Duty) - ${dateStr}`;
+            
+            select.appendChild(option);
+            optionsAdded++;
+        }
+    }
 
     function startUndoTimer() {
+        let group = document.getElementById('group-select').value;
+        if(!group) { alert("Pehle tumcha Group select kara!"); return; }
         let token = document.getElementById('token').value.trim();
         if(!token) { alert("Please enter your Token Number!"); return; }
 
@@ -190,7 +176,7 @@
 
     function cancelAbsent() {
         clearInterval(countdown);
-        alert("Absent Cancelled! ₹775 Saved. 💰");
+        alert("Absent Cancelled! ₹875 Saved. 💰");
         resetUI();
     }
 
@@ -209,15 +195,18 @@
         document.getElementById('undo-btn').style.display = 'none';
         document.getElementById('timer-msg').style.display = 'none';
         document.getElementById('timer-msg').innerHTML = 'Locking in <span id="seconds">30</span>s...';
+        document.getElementById('token').value = "";
     }
 
     function submitAction(actionType) {
+        let group = document.getElementById('group-select').value;
         let token = document.getElementById('token').value.trim();
+        if(!token || !group) { alert("Group aur Token dono zaroori ahe!"); return; }
+
         let reason = document.getElementById('reason').value;
-        let dayOffset = document.getElementById('leave-day').value; // NAYA: Day value le raha hai (0, 1, 2)
+        let dayOffset = document.getElementById('leave-day').value; 
 
         let statusBox = document.getElementById('status-msg');
-
         statusBox.style.display = "block";
         statusBox.style.background = "#e3f2fd";
         statusBox.style.color = "#1565c0";
@@ -227,16 +216,15 @@
         formData.append('action', actionType);
         formData.append('token', token);
         formData.append('reason', reason);
-        formData.append('dayOffset', dayOffset); // NAYA: Backend ko bata raha hai kaunse din ki sheet mein dalna hai
+        formData.append('dayOffset', dayOffset); 
 
         fetch(API_URL, { method: 'POST', body: formData })
         .then(res => res.text())
         .then(data => {
-            if(data.includes("Blocked") || data.includes("Error")) {
-                alert("❌ FAILED!\n\n" + data);
+            if(data.includes("Blocked") || data.includes("Error") || data.includes("Update")) {
+                alert("⚠️ ATTENTION!\\n\\n" + data);
             } else {
-                alert("✅ SUCCESS!\n\n" + data);
-                document.getElementById('token').value = "";
+                alert("✅ SUCCESS!\\n\\n" + data);
             }
             resetUI();
             statusBox.style.display = "none";
