@@ -168,13 +168,13 @@
           {/* Main RGV Panel Background - Placed at z-20 to sandwich the engine */}
           <div className="absolute inset-0 bg-slate-200 rounded-lg border-4 border-slate-400 shadow-2xl z-20 pointer-events-none"></div>
 
-          {/* ENGINE DECKING VISUAL (Z-Index 10: Behind Panel Background, but overlapping external elements) */}
+          {/* ENGINE DECKING VISUAL (Z-Index 10: Behind Panel Background, overlapping description box) */}
           {level === 7 && (
             <motion.div
                 initial={{ y: 300, opacity: 0 }}
-                animate={{ y: engineLiftPercent === 100 ? -200 : engineLiftPercent === 50 ? -40 : 300, opacity: 1 }}
+                animate={{ y: engineLiftPercent === 100 ? -220 : engineLiftPercent === 50 ? -60 : 300, opacity: 1 }}
                 transition={{ type: "spring", stiffness: 45, damping: 15 }}
-                className="absolute left-[50%] -translate-x-1/2 w-[320px] z-10 pointer-events-none flex justify-center"
+                className="absolute left-0 right-0 mx-auto w-[280px] z-10 pointer-events-none flex justify-center"
             >
                <img src="https://i.ibb.co/z1KtGxP/toppng-com-car-engine-detailed-png-800x803.png" alt="mHawk Engine" className="w-full object-contain drop-shadow-[0_15px_15px_rgba(0,0,0,0.6)]" />
             </motion.div>
@@ -185,7 +185,7 @@
             <div className={`w-6 h-8 rounded-sm ${isFault ? 'bg-red-500 shadow-[0_0_15px_rgba(239,68,68,1)] animate-pulse' : 'bg-red-950'}`} />
           </div>
 
-          {/* JOYSTICK COMPONENT */}
+          {/* NEW JOYSTICK COMPONENT (Level 6 Sync Matching) */}
           <div className="absolute -top-8 left-[45%] w-12 h-[34px] bg-slate-300 rounded-t-md border-x-4 border-t-4 border-slate-500 flex flex-col items-center justify-between p-1 z-30 shadow-inner">
              <div onClick={() => onJoystick('FWD')} className="w-8 h-3.5 bg-zinc-900 rounded-[2px] text-[4.5px] font-bold text-white flex items-center justify-center cursor-pointer active:bg-zinc-600 select-none shadow-md border border-black hover:bg-zinc-700 leading-none">▲ FWD</div>
              <div onClick={() => onJoystick('REV')} className="w-8 h-3.5 bg-zinc-900 rounded-[2px] text-[4.5px] font-bold text-white flex items-center justify-center cursor-pointer active:bg-zinc-600 select-none shadow-md border border-black hover:bg-zinc-700 leading-none">▼ REV</div>
@@ -697,7 +697,7 @@
           {/* FOOTER UPDATED */}
           <footer className="w-full max-w-md mx-auto text-center px-4 mt-6 text-[9px] text-zinc-600 font-mono tracking-wider">
             <p>©XUV TCF MAINTENANCE Game Training Portal</p>
-            <p className="mt-1 uppercase text-[8px] text-zinc-700">Made with ❤️ by Sahil M Pardeshi</p>
+            <p className="mt-1 uppercase text-[8px] text-zinc-700">Made with ❤️ by Sahil Pardeshi</p>
           </footer>
 
         </div>
